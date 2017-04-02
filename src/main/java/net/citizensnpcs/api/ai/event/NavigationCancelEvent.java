@@ -1,32 +1,29 @@
 package net.citizensnpcs.api.ai.event;
 
 import net.citizensnpcs.api.ai.Navigator;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
 
-import org.bukkit.event.HandlerList;
+public class NavigationCancelEvent extends NavigationCompleteEvent implements Cancellable {
+    private boolean isCancelled = false;
+    private CancelReason reason;
 
-public class NavigationCancelEvent extends NavigationCompleteEvent {
-    private final CancelReason reason;
-
-    public NavigationCancelEvent(Navigator navigator, CancelReason reason) {
-        super(navigator);
+    public NavigationCancelEvent(Navigator navigator, Cause cause, CancelReason reason) {
+        super(navigator, cause);
         this.reason = reason;
     }
 
-    /**
-     * @return The cancellation reason
-     */
     public CancelReason getCancelReason() {
-        return reason;
+        return this.reason;
     }
 
     @Override
-    public HandlerList getHandlers() {
-        return handlers;
+    public boolean isCancelled() {
+        return this.isCancelled;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.isCancelled = cancel;
     }
 }

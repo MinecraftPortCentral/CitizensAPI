@@ -1,9 +1,9 @@
 package net.citizensnpcs.api.ai;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
-
+import com.flowpowered.math.vector.Vector3i;
 import net.citizensnpcs.api.ai.event.CancelReason;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 /**
  * A pathfinding strategy directed at a target. Has two states: pathfinding -> cancelled represented by
@@ -23,12 +23,12 @@ public interface PathStrategy {
     /**
      * @return A copy of the current path, if any
      */
-    Iterable<Vector> getPath();
+    Iterable<Vector3i> getPath();
 
     /**
      * @return Gets the target destination location
      */
-    Location getTargetAsLocation();
+    Location<World> getTargetAsLocation();
 
     /**
      * @return The {@link TargetType} of this strategy

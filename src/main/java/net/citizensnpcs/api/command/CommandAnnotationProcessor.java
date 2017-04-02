@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 
 import net.citizensnpcs.api.command.exception.CommandException;
 
-import org.bukkit.command.CommandSender;
+import org.spongepowered.api.command.CommandSource;
 
 public interface CommandAnnotationProcessor {
     /**
@@ -24,6 +24,6 @@ public interface CommandAnnotationProcessor {
      * @throws CommandException
      *             If an exception occurs
      */
-    void process(CommandSender sender, CommandContext context, Annotation instance, Object[] args)
+    void process(CommandSource sender, CommandContext context, Annotation instance, Object[] args)
             throws CommandException;
 }

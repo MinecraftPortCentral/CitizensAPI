@@ -2,32 +2,30 @@ package net.citizensnpcs.api.astar.pathfinder;
 
 import java.util.List;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
-
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 
 import net.citizensnpcs.api.astar.AStarNode;
 import net.citizensnpcs.api.astar.Plan;
 import net.citizensnpcs.api.astar.pathfinder.BlockExaminer.PassableState;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class VectorNode extends AStarNode implements PathPoint {
     private float blockCost = -1;
-    private final BlockSource blockSource;
     List<PathCallback> callbacks;
     private final BlockExaminer[] examiners;
     private final VectorGoal goal;
-    Vector location;
+    private Location<World> location;
 
-    public VectorNode(VectorGoal goal, Location location, BlockSource source, BlockExaminer... examiners) {
-        this(goal, location.toVector(), source, examiners);
-    }
-
-    public VectorNode(VectorGoal goal, Vector location, BlockSource source, BlockExaminer... examiners) {
-        this.location = location.setX(location.getBlockX()).setY(location.getBlockY()).setZ(location.getBlockZ());
-        this.blockSource = source;
+    public VectorNode(VectorGoal goal,Location<World> location, BlockExaminer... examiners) {
+        this.location =location;;
         this.examiners = examiners == null ? new BlockExaminer[] {} : examiners;
         this.goal = goal;
+    }
+
+    public Location<World> getLocation() {
+        return this.location;
     }
 
     @Override
@@ -45,12 +43,12 @@ public class VectorNode extends AStarNode implements PathPoint {
     }
 
     @Override
-    public VectorNode createAtOffset(Vector mod) {
-        return new VectorNode(goal, mod, blockSource, examiners);
+    public VectorNode createAtOffset(Vector3d mod) {
+        return new VectorNode(goal, new Location<World>(this.location.getExtent(), mod), examiners);
     }
 
     public float distance(VectorNode to) {
-        return (float) location.distance(to.location);
+        return (float) location.getPosition().distance(to.location.getPosition());
     }
 
     @Override
@@ -76,14 +74,14 @@ public class VectorNode extends AStarNode implements PathPoint {
         if (blockCost == -1) {
             blockCost = 0;
             for (BlockExaminer examiner : examiners) {
-                blockCost += examiner.getCost(blockSource, this);
+                blockCost += examiner.getCost(location, this);
             }
         }
         return blockCost;
     }
 
     @Override
-    public Vector getGoal() {
+    public Vector3d getGoal() {
         return goal.goal;
     }
 
@@ -92,12 +90,12 @@ public class VectorNode extends AStarNode implements PathPoint {
         List<PathPoint> neighbours = null;
         for (BlockExaminer examiner : examiners) {
             if (examiner instanceof NeighbourGeneratorBlockExaminer) {
-                neighbours = ((NeighbourGeneratorBlockExaminer) examiner).getNeighbours(blockSource, this);
+                neighbours = ((NeighbourGeneratorBlockExaminer) examiner).getNeighbours(this.location, this);
                 break;
             }
         }
         if (neighbours == null) {
-            neighbours = getNeighbours(blockSource, this);
+            neighbours = getNeighbours(this.location, this);
         }
         List<AStarNode> nodes = Lists.newArrayList();
         for (PathPoint sub : neighbours) {
@@ -108,7 +106,7 @@ public class VectorNode extends AStarNode implements PathPoint {
         return nodes;
     }
 
-    public List<PathPoint> getNeighbours(BlockSource source, PathPoint point) {
+    public List<PathPoint> getNeighbours(Location<World> source, PathPoint point) {
         List<PathPoint> neighbours = Lists.newArrayList();
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -117,7 +115,7 @@ public class VectorNode extends AStarNode implements PathPoint {
                         continue;
                     if (x != 0 && z != 0)
                         continue;
-                    Vector mod = location.clone().add(new Vector(x, y, z));
+                    Vector3d mod = location.getPosition().add(new Vector3d(x, y, z));
                     if (mod.equals(location))
                         continue;
                     neighbours.add(point.createAtOffset(mod));
@@ -133,8 +131,8 @@ public class VectorNode extends AStarNode implements PathPoint {
     }
 
     @Override
-    public Vector getVector() {
-        return location.clone();
+    public Vector3d getVector() {
+        return location.getPosition();
     }
 
     @Override
@@ -143,14 +141,14 @@ public class VectorNode extends AStarNode implements PathPoint {
         return prime + ((location == null) ? 0 : location.hashCode());
     }
 
-    public float heuristicDistance(Vector goal) {
-        return (float) (location.distance(goal) + getBlockCost()) * TIEBREAKER;
+    public float heuristicDistance(Vector3d goal) {
+        return (float) (location.getPosition().distance(goal) + getBlockCost()) * TIEBREAKER;
     }
 
     private boolean isPassable(PathPoint mod) {
         boolean passable = false;
         for (BlockExaminer examiner : examiners) {
-            PassableState state = examiner.isPassable(blockSource, mod);
+            PassableState state = examiner.isPassable(location, mod);
             if (state == PassableState.IGNORE)
                 continue;
             passable |= state == PassableState.PASSABLE ? true : false;
@@ -159,8 +157,8 @@ public class VectorNode extends AStarNode implements PathPoint {
     }
 
     @Override
-    public void setVector(Vector vector) {
-        this.location = vector;
+    public void setVector(Vector3d vector) {
+        this.location = new Location<World>(this.location.getExtent(), vector);
     }
 
     private static final float TIEBREAKER = 1.001f;

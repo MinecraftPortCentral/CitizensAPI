@@ -3,16 +3,14 @@ package net.citizensnpcs.api.ai.speech.event;
 import net.citizensnpcs.api.ai.speech.SpeechContext;
 import net.citizensnpcs.api.ai.speech.Talkable;
 import net.citizensnpcs.api.ai.speech.VocalChord;
-
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.impl.AbstractEvent;
 
 /**
  * Represents an event where a {@link Talkable} entity speaks at/near a {@link Talkable} entity.
  * 
  */
-public class SpeechEvent extends Event implements Cancellable {
+public class SpeechEvent extends AbstractEvent implements Cancellable {
 
     private boolean cancelled = false;
 
@@ -35,11 +33,6 @@ public class SpeechEvent extends Event implements Cancellable {
      */
     public SpeechContext getContext() {
         return context;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
 
     /**
@@ -79,11 +72,5 @@ public class SpeechEvent extends Event implements Cancellable {
      */
     public void setMessage(String formattedMessage) {
         this.message = formattedMessage;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 }

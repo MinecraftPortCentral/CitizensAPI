@@ -3,9 +3,8 @@ package net.citizensnpcs.api.ai.speech.event;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.ai.speech.SpeechContext;
 import net.citizensnpcs.api.event.NPCEvent;
-
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
 
 /**
  * Represents an event where an NPC speaks, with {@link SpeechContext}. This event takes place before being sent to the
@@ -19,8 +18,8 @@ public class NPCSpeechEvent extends NPCEvent implements Cancellable {
     private SpeechContext context;
     private String vocalChordName;
 
-    public NPCSpeechEvent(SpeechContext context, String vocalChordName) {
-        super(CitizensAPI.getNPCRegistry().getNPC(context.getTalker().getEntity()));
+    public NPCSpeechEvent(SpeechContext context, String vocalChordName, Cause cause) {
+        super(CitizensAPI.getNPCRegistry().getNPC(context.getTalker().getEntity()), cause);
         this.vocalChordName = vocalChordName;
         this.context = context;
     }
@@ -32,11 +31,6 @@ public class NPCSpeechEvent extends NPCEvent implements Cancellable {
      */
     public SpeechContext getContext() {
         return context;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
 
     /**
@@ -64,11 +58,5 @@ public class NPCSpeechEvent extends NPCEvent implements Cancellable {
      */
     public void setVocalChord(String name) {
         this.vocalChordName = name;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 }

@@ -1,20 +1,19 @@
 package net.citizensnpcs.api.persistence;
 
-import org.bukkit.util.EulerAngle;
-
+import com.flowpowered.math.vector.Vector3d;
 import net.citizensnpcs.api.util.DataKey;
 
-public class EulerAnglePersister implements Persister<EulerAngle> {
+public class EulerAnglePersister implements Persister<Vector3d> {
     @Override
-    public EulerAngle create(DataKey root) {
+    public Vector3d create(DataKey root) {
         double x = root.getDouble("x");
         double y = root.getDouble("y");
         double z = root.getDouble("z");
-        return new EulerAngle(x, y, z);
+        return new Vector3d(x, y, z);
     }
 
     @Override
-    public void save(EulerAngle angle, DataKey root) {
+    public void save(Vector3d angle, DataKey root) {
         root.setDouble("x", angle.getX());
         root.setDouble("y", angle.getY());
         root.setDouble("z", angle.getZ());

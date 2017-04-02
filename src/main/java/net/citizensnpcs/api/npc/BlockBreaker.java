@@ -1,11 +1,12 @@
 package net.citizensnpcs.api.npc;
 
 import net.citizensnpcs.api.ai.tree.BehaviorGoalAdapter;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public abstract class BlockBreaker extends BehaviorGoalAdapter {
     public static class BlockBreakerConfiguration {
         private Runnable callback;
-        private org.bukkit.inventory.ItemStack itemStack;
+        private ItemStack itemStack;
         private float modifier = 1;
         private double radius = 0;
 
@@ -27,11 +28,11 @@ public abstract class BlockBreaker extends BehaviorGoalAdapter {
             return this;
         }
 
-        public org.bukkit.inventory.ItemStack item() {
+        public ItemStack item() {
             return itemStack;
         }
 
-        public BlockBreakerConfiguration item(org.bukkit.inventory.ItemStack stack) {
+        public BlockBreakerConfiguration item(ItemStack stack) {
             itemStack = stack;
             return this;
         }

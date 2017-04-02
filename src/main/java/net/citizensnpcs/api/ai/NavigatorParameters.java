@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -14,6 +11,9 @@ import net.citizensnpcs.api.ai.event.CancelReason;
 import net.citizensnpcs.api.ai.event.NavigatorCallback;
 import net.citizensnpcs.api.astar.AStarMachine;
 import net.citizensnpcs.api.astar.pathfinder.BlockExaminer;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class NavigatorParameters implements Cloneable {
     private int attackDelayTicks = 20;
@@ -26,8 +26,8 @@ public class NavigatorParameters implements Cloneable {
     private AttackStrategy defaultStrategy;
     private double distanceMargin = 2F;
     private List<BlockExaminer> examiners = Lists.newArrayList();
-    private Function<Navigator, Location> lookAtFunction;
-    private Function<Entity, Location> mapper;
+    private Function<Navigator, Location<World>> lookAtFunction;
+    private Function<Entity, Location<World>> mapper;
     private double pathDistanceMargin = 1F;
     private float range;
     private List<Runnable> runCallbacks = Lists.newArrayListWithExpectedSize(3);
@@ -263,7 +263,7 @@ public class NavigatorParameters implements Cloneable {
      * Gets the target location mapper. This is a function that maps from a target entity to the location the NPC should
      * pathfind to. The default mapper returns the location using {@link Entity#getLocation(Location)}.
      */
-    public Function<Entity, Location> entityTargetLocationMapper() {
+    public Function<Entity, Location<World>> entityTargetLocationMapper() {
         return mapper != null ? mapper : DEFAULT_MAPPER;
     }
 
@@ -274,7 +274,7 @@ public class NavigatorParameters implements Cloneable {
      *            The new mapper
      * @see #entityTargetLocationMapper(Function)
      */
-    public NavigatorParameters entityTargetLocationMapper(Function<Entity, Location> mapper) {
+    public NavigatorParameters entityTargetLocationMapper(Function<Entity, Location<World>> mapper) {
         this.mapper = mapper;
         return this;
     }
@@ -302,7 +302,7 @@ public class NavigatorParameters implements Cloneable {
     /**
      * @see #lookAtFunction(Callable)
      */
-    public Function<Navigator, Location> lookAtFunction() {
+    public Function<Navigator, Location<World>> lookAtFunction() {
         return this.lookAtFunction;
     }
 
@@ -312,7 +312,7 @@ public class NavigatorParameters implements Cloneable {
      * @param lookAt
      *            Where to look
      */
-    public NavigatorParameters lookAtFunction(Function<Navigator, Location> lookAt) {
+    public NavigatorParameters lookAtFunction(Function<Navigator, Location<World>> lookAt) {
         this.lookAtFunction = lookAt;
         return this;
     }
@@ -517,12 +517,10 @@ public class NavigatorParameters implements Cloneable {
         return this;
     }
 
-    private static final Function<org.bukkit.entity.Entity, Location> DEFAULT_MAPPER = new Function<Entity, Location>() {
-        Location location = new Location(null, 0, 0, 0);
-
+    private static final Function<Entity, Location<World>> DEFAULT_MAPPER = new Function<Entity, Location<World>>() {
         @Override
-        public Location apply(Entity input) {
-            return input.getLocation(location);
+        public Location<World> apply(Entity input) {
+            return input.getLocation();
         }
     };
 }

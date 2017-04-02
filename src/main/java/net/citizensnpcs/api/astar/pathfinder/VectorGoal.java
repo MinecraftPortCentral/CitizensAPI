@@ -1,21 +1,20 @@
 package net.citizensnpcs.api.astar.pathfinder;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
-
+import com.flowpowered.math.vector.Vector3d;
 import net.citizensnpcs.api.astar.AStarGoal;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class VectorGoal implements AStarGoal<VectorNode> {
-    final Vector goal;
+    final Vector3d goal;
     private final float leeway;
 
-    public VectorGoal(Location dest, float range) {
-        if (!MinecraftBlockExaminer.canStandIn(dest.getBlock().getType())) {
+    public VectorGoal(Location<World> dest, float range) {
+        if (!MinecraftBlockExaminer.canStandIn(dest.getBlock())) {
             dest = MinecraftBlockExaminer.findValidLocation(dest, 1);
         }
         this.leeway = range;
-        this.goal = dest.toVector();
-        goal.setX(goal.getBlockX()).setY(goal.getBlockY()).setZ(goal.getBlockZ());
+        this.goal = dest.getPosition();
     }
 
     @Override
@@ -25,7 +24,7 @@ public class VectorGoal implements AStarGoal<VectorNode> {
 
     @Override
     public float getInitialCost(VectorNode node) {
-        return (float) node.getVector().distance(goal);
+        return (float) node.getLocation().getPosition().distance(goal);
     }
 
     @Override
@@ -36,6 +35,6 @@ public class VectorGoal implements AStarGoal<VectorNode> {
     @Override
     public boolean isFinished(VectorNode node) {
         double distanceSquared = node.getVector().distanceSquared(goal);
-        return goal.equals(node.location) || distanceSquared <= leeway;
+        return goal.equals(node.getLocation().getPosition()) || distanceSquared <= leeway;
     }
 }

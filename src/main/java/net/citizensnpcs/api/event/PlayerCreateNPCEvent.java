@@ -1,10 +1,8 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Cancellable;
 
 public class PlayerCreateNPCEvent extends CommandSenderCreateNPCEvent implements Cancellable {
     public PlayerCreateNPCEvent(Player player, NPC npc) {
@@ -17,16 +15,5 @@ public class PlayerCreateNPCEvent extends CommandSenderCreateNPCEvent implements
     @Override
     public Player getCreator() {
         return (Player) super.getCreator();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 }

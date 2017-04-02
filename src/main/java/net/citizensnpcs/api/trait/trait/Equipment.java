@@ -1,14 +1,7 @@
 package net.citizensnpcs.api.trait.trait;
 
 import java.util.Map;
-
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
+import java.util.Optional;
 
 import com.google.common.collect.Maps;
 
@@ -17,6 +10,18 @@ import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.ItemStorage;
+import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.util.EnumHand;
+import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.ArmorEquipable;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.ArmorStand;
+import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.entity.living.monster.Enderman;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
  * Represents an NPC's equipment. This only is applicable to human and enderman NPCs.
@@ -77,11 +82,11 @@ public class Equipment extends Trait {
         return map;
     }
 
-    private EntityEquipment getEquipmentFromEntity(Entity entity) {
+    private ArmorEquipable getEquipmentFromEntity(Entity entity) {
         if (entity instanceof Player)
             return new PlayerEquipmentWrapper((Player) entity);
-        else if (entity instanceof LivingEntity)
-            return ((LivingEntity) entity).getEquipment();
+        else if (entity instanceof Living)
+            return ((Living) entity).getEquipment();
         else if (entity instanceof ArmorStand)
             return new ArmorStandEquipmentWrapper((ArmorStand) entity);
         throw new RuntimeException("Unsupported entity equipment");
@@ -112,7 +117,7 @@ public class Equipment extends Trait {
     @Override
     @SuppressWarnings("deprecation")
     public void onSpawn() {
-        if (!(npc.getEntity() instanceof LivingEntity) && !(npc.getEntity() instanceof ArmorStand))
+        if (!(npc.getEntity() instanceof Living) && !(npc.getEntity() instanceof ArmorStand))
             return;
         if (npc.getEntity() instanceof Enderman) {
             Enderman enderman = (Enderman) npc.getEntity();
@@ -120,15 +125,15 @@ public class Equipment extends Trait {
                 enderman.setCarriedMaterial(equipment[0].getData());
             }
         } else {
-            EntityEquipment equip = getEquipmentFromEntity(npc.getEntity());
+            ArmorEquipable equip = getEquipmentFromEntity(npc.getEntity());
             if (equipment[0] != null) {
-                equip.setItemInMainHand(equipment[0]);
+                equip.setItemInHand(HandTypes.MAIN_HAND, equipment[0]);
             }
             equip.setHelmet(equipment[1]);
             equip.setChestplate(equipment[2]);
             equip.setLeggings(equipment[3]);
             equip.setBoots(equipment[4]);
-            equip.setItemInOffHand(equipment[5]);
+            equip.setItemInHand(HandTypes.OFF_HAND, equipment[5]);
         }
         if (npc.getEntity() instanceof Player) {
             ((Player) npc.getEntity()).updateInventory();
@@ -172,7 +177,7 @@ public class Equipment extends Trait {
      */
     @SuppressWarnings("deprecation")
     public void set(int slot, ItemStack item) {
-        if (!(npc.getEntity() instanceof LivingEntity) && !(npc.getEntity() instanceof ArmorStand))
+        if (!(npc.getEntity() instanceof Living) && !(npc.getEntity() instanceof ArmorStand))
             return;
         if (npc.getEntity() instanceof Enderman) {
             if (slot != 0)
@@ -216,104 +221,77 @@ public class Equipment extends Trait {
                 + equipment[3] + ",boots=" + equipment[4] + ",offhand=" + equipment[5] + "}";
     }
 
-    private static class ArmorStandEquipmentWrapper implements EntityEquipment {
+    private static class ArmorStandEquipmentWrapper implements ArmorEquipable {
         private final ArmorStand entity;
+        private final EntityArmorStand mcArmorStand;
 
         public ArmorStandEquipmentWrapper(ArmorStand entity) {
             this.entity = entity;
+            this.mcArmorStand = (EntityArmorStand) entity;
         }
 
         @Override
         public void clear() {
-            entity.setItemInHand(null);
+            entity.setItemInHand(HandTypes.MAIN_HAND, null);
             entity.setChestplate(null);
             entity.setHelmet(null);
             entity.setBoots(null);
             entity.setLeggings(null);
         }
 
-        @Override
         public ItemStack[] getArmorContents() {
-            return new ItemStack[] { entity.getHelmet(), entity.getChestplate(), entity.getLeggings(),
-                    entity.getBoots() };
+            return new ItemStack[] { entity.getHelmet().orElse(null), entity.getChestplate().orElse(null), entity.getLeggings().orElse(null),
+                    entity.getBoots().orElse(null) };
         }
 
         @Override
-        public ItemStack getBoots() {
+        public Optional<ItemStack> getBoots() {
             return entity.getBoots();
         }
 
-        @Override
         public float getBootsDropChance() {
             return 0;
         }
 
         @Override
-        public ItemStack getChestplate() {
+        public Optional<ItemStack> getChestplate() {
             return entity.getChestplate();
         }
 
-        @Override
         public float getChestplateDropChance() {
             return 0;
         }
 
         @Override
-        public ItemStack getHelmet() {
+        public Optional<ItemStack> getHelmet() {
             return entity.getHelmet();
         }
 
-        @Override
         public float getHelmetDropChance() {
             return 0;
         }
 
-        @Override
         public Entity getHolder() {
             return entity;
         }
 
-        @Override
-        public ItemStack getItemInHand() {
-            return entity.getItemInHand();
+        public Optional<ItemStack> getItemInHand(HandType handType) {
+            return entity.getItemInHand(handType);
         }
 
-        @Override
-        public float getItemInHandDropChance() {
+        public float getItemInHandDropChance(HandType handType) {
             return 0;
         }
 
         @Override
-        public ItemStack getItemInMainHand() {
-            return entity.getItemInHand();
-        }
-
-        @Override
-        public float getItemInMainHandDropChance() {
-            return 0;
-        }
-
-        @Override
-        public ItemStack getItemInOffHand() {
-            return null;
-        }
-
-        @Override
-        public float getItemInOffHandDropChance() {
-            return 0;
-        }
-
-        @Override
-        public ItemStack getLeggings() {
+        public Optional<ItemStack> getLeggings() {
             return entity.getLeggings();
         }
 
-        @Override
         public float getLeggingsDropChance() {
             return 0;
         }
 
-        @Override
         public void setArmorContents(ItemStack[] arg0) {
             entity.setHelmet(arg0[EquipmentSlot.HELMET.index - 1]);
             entity.setChestplate(arg0[EquipmentSlot.CHESTPLATE.index - 1]);
@@ -326,7 +304,6 @@ public class Equipment extends Trait {
             entity.setBoots(arg0);
         }
 
-        @Override
         public void setBootsDropChance(float arg0) {
         }
 
@@ -335,7 +312,6 @@ public class Equipment extends Trait {
             entity.setChestplate(arg0);
         }
 
-        @Override
         public void setChestplateDropChance(float arg0) {
         }
 
@@ -344,34 +320,15 @@ public class Equipment extends Trait {
             entity.setHelmet(arg0);
         }
 
-        @Override
         public void setHelmetDropChance(float arg0) {
         }
 
         @Override
-        public void setItemInHand(ItemStack arg0) {
-            entity.setItemInHand(arg0);
+        public void setItemInHand(HandType handType, ItemStack arg0) {
+            entity.setItemInHand(handType, arg0);
         }
 
-        @Override
-        public void setItemInHandDropChance(float arg0) {
-        }
-
-        @Override
-        public void setItemInMainHand(ItemStack arg0) {
-            entity.setItemInHand(arg0);
-        }
-
-        @Override
-        public void setItemInMainHandDropChance(float arg0) {
-        }
-
-        @Override
-        public void setItemInOffHand(ItemStack arg0) {
-        }
-
-        @Override
-        public void setItemInOffHandDropChance(float arg0) {
+        public void setItemInHandDropChance(HandType handType, float arg0) {
         }
 
         @Override
@@ -379,7 +336,6 @@ public class Equipment extends Trait {
             entity.setLeggings(arg0);
         }
 
-        @Override
         public void setLeggingsDropChance(float arg0) {
         }
     }
@@ -402,7 +358,7 @@ public class Equipment extends Trait {
         }
     }
 
-    private static class PlayerEquipmentWrapper implements EntityEquipment {
+    private static class PlayerEquipmentWrapper implements ArmorEquipable {
         private final Player player;
 
         private PlayerEquipmentWrapper(Player player) {

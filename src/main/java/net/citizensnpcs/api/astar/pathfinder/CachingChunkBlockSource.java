@@ -2,20 +2,19 @@ package net.citizensnpcs.api.astar.pathfinder;
 
 import java.util.Map;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import com.google.common.collect.Maps;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-public abstract class CachingChunkBlockSource<T> extends BlockSource {
+public abstract class CachingChunkBlockSource<T> {
     private final Map<ChunkCoord, ChunkCache> chunkCache = Maps.newHashMap();
     private final Object[][] chunks;
     private final int chunkX;
     private final int chunkZ;
     protected final World world;
 
-    protected CachingChunkBlockSource(Location location, float radius) {
-        this(location.getWorld(), location.getBlockX(), location.getBlockZ(), radius);
+    protected CachingChunkBlockSource(Location<World> location, float radius) {
+        this(location.getExtent(), location.getBlockX(), location.getBlockZ(), radius);
     }
 
     protected CachingChunkBlockSource(World world, int x, int z, float radius) {
@@ -36,17 +35,17 @@ public abstract class CachingChunkBlockSource<T> extends BlockSource {
         }
     }
 
-    @Override
+    /*@Override
     public int getBlockTypeIdAt(int x, int y, int z) {
         T chunk = getSpecific(x, z);
         if (chunk != null)
             return getId(chunk, x & 15, y, z & 15);
         return world.getBlockTypeIdAt(x, y, z);
-    }
+    }*/
 
     protected abstract T getChunkObject(int x, int z);
 
-    protected abstract int getId(T chunk, int x, int y, int z);
+    //protected abstract int getId(T chunk, int x, int y, int z);
 
     protected abstract int getLightLevel(T chunk, int x, int y, int z);
 
@@ -70,11 +69,6 @@ public abstract class CachingChunkBlockSource<T> extends BlockSource {
             return prev.obj = getChunkObject(x >> 4, z >> 4);
         }
         return null;
-    }
-
-    @Override
-    public World getWorld() {
-        return world;
     }
 
     private class ChunkCache {

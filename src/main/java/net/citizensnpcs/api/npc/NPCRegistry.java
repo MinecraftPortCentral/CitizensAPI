@@ -1,9 +1,9 @@
 package net.citizensnpcs.api.npc;
 
-import java.util.UUID;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import java.util.UUID;
 
 /**
  * Controls the registration and lookup of a set of {@link NPC}s.

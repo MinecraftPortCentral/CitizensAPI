@@ -1,17 +1,16 @@
 package net.citizensnpcs.api.event;
 
+import com.flowpowered.math.vector.Vector3d;
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.util.Vector;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
 
 public class NPCPushEvent extends NPCEvent implements Cancellable {
     private boolean cancelled;
-    private Vector collisionVector;
+    private Vector3d collisionVector;
 
-    public NPCPushEvent(NPC npc, Vector vector) {
-        super(npc);
+    public NPCPushEvent(NPC npc, Vector3d vector, Cause cause) {
+        super(npc, cause);
         this.collisionVector = vector;
     }
 
@@ -20,13 +19,8 @@ public class NPCPushEvent extends NPCEvent implements Cancellable {
      * 
      * @return The collision vector
      */
-    public Vector getCollisionVector() {
+    public Vector3d getCollisionVector() {
         return collisionVector;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
 
     @Override
@@ -46,14 +40,8 @@ public class NPCPushEvent extends NPCEvent implements Cancellable {
      * @param vector
      *            The new collision vector
      */
-    public void setCollisionVector(Vector vector) {
+    public void setCollisionVector(Vector3d vector) {
         this.collisionVector = vector;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 
 }

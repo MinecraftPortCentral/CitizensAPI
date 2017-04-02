@@ -1,9 +1,12 @@
 package net.citizensnpcs.api.astar.pathfinder;
 
-public interface BlockExaminer {
-    float getCost(BlockSource source, PathPoint point);
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-    PassableState isPassable(BlockSource source, PathPoint point);
+public interface BlockExaminer {
+    float getCost(Location<World> source, PathPoint point);
+
+    PassableState isPassable(Location<World> source, PathPoint point);
 
     public enum PassableState {
         IGNORE,

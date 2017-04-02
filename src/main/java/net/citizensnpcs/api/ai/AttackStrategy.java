@@ -1,6 +1,6 @@
 package net.citizensnpcs.api.ai;
 
-import org.bukkit.entity.LivingEntity;
+import org.spongepowered.api.entity.living.Living;
 
 public interface AttackStrategy {
     /**
@@ -13,5 +13,5 @@ public interface AttackStrategy {
      *            The target to attack
      * @return Whether the attack was handled
      */
-    public boolean handle(LivingEntity attacker, LivingEntity target);
+    public boolean handle(Living attacker, Living target);
 }

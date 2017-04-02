@@ -25,7 +25,7 @@ public class GroupNPCFlock implements NPCFlock {
         return Collections2.filter(npcs, new Predicate<NPC>() {
             @Override
             public boolean apply(NPC input) {
-                return input.getStoredLocation().distance(npc.getStoredLocation()) < radius;
+                return input.getStoredLocation().getPosition().distance(npc.getStoredLocation().getPosition()) < radius;
             }
         });
     }

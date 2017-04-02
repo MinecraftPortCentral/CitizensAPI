@@ -1,12 +1,12 @@
 package net.citizensnpcs.api.util.prtree;
 
-import org.bukkit.util.Vector;
+import com.flowpowered.math.vector.Vector3d;
 
 public class Region3D<T> implements MBR {
     private final T data;
-    private final Vector min, max;
+    private final Vector3d min, max;
 
-    public Region3D(Vector min, Vector max, T data) {
+    public Region3D(Vector3d min, Vector3d max, T data) {
         this.min = min;
         this.max = max;
         this.data = data;
@@ -25,11 +25,11 @@ public class Region3D<T> implements MBR {
     public double getMax(int axis) {
         switch (axis) {
             case 0:
-                return max.getBlockX();
+                return max.getX();
             case 1:
-                return max.getBlockY();
+                return max.getY();
             case 2:
-                return max.getBlockZ();
+                return max.getZ();
         }
         return 0;
     }
@@ -38,11 +38,11 @@ public class Region3D<T> implements MBR {
     public double getMin(int axis) {
         switch (axis) {
             case 0:
-                return min.getBlockX();
+                return min.getX();
             case 1:
-                return min.getBlockY();
+                return min.getY();
             case 2:
-                return min.getBlockZ();
+                return min.getZ();
         }
         return 0;
     }
@@ -55,18 +55,18 @@ public class Region3D<T> implements MBR {
 
     @Override
     public boolean intersects(MBR other) {
-        if (other.getMax(0) < min.getBlockX() || other.getMax(1) < min.getBlockY() || other.getMax(2) < min.getBlockZ())
+        if (other.getMax(0) < min.getX() || other.getMax(1) < min.getY() || other.getMax(2) < min.getZ())
             return false;
-        if (other.getMin(0) > max.getBlockX() || other.getMin(1) > max.getBlockY() || other.getMin(2) > max.getBlockZ())
+        if (other.getMin(0) > max.getX() || other.getMin(1) > max.getY() || other.getMin(2) > max.getZ())
             return false;
         return false;
     }
 
     @Override
     public MBR union(MBR mbr) {
-        Vector umin = new Vector(Math.min(min.getX(), mbr.getMin(0)), Math.min(min.getY(), mbr.getMin(1)),
+        Vector3d umin = new Vector3d(Math.min(min.getX(), mbr.getMin(0)), Math.min(min.getY(), mbr.getMin(1)),
                 Math.min(min.getZ(), mbr.getMin(2)));
-        Vector umax = new Vector(Math.max(max.getX(), mbr.getMax(0)), Math.max(max.getY(), mbr.getMax(1)),
+        Vector3d umax = new Vector3d(Math.max(max.getX(), mbr.getMax(0)), Math.max(max.getY(), mbr.getMax(1)),
                 Math.max(max.getZ(), mbr.getMax(2)));
         return new Region3D<T>(umin, umax, data);
     }

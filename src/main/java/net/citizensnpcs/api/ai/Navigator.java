@@ -1,10 +1,11 @@
 package net.citizensnpcs.api.ai;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.util.Vector;
 
+import com.flowpowered.math.vector.Vector3i;
 import net.citizensnpcs.api.npc.NPC;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 /**
  * Represents the pathfinding AI of an {@link NPC}. The navigator can path towards a single target at a time.
@@ -58,7 +59,7 @@ public interface Navigator {
      *
      * @return The target location
      */
-    Location getTargetAsLocation();
+    Location<World> getTargetAsLocation();
 
     /**
      * @return The current {@link TargetType} of the navigator
@@ -100,7 +101,7 @@ public interface Navigator {
      * @param path
      *            The path
      */
-    void setTarget(Iterable<Vector> path);
+    void setTarget(Iterable<Vector3i> path);
 
     /**
      * Sets the current navigation to a {@link Location} destination.
@@ -108,5 +109,5 @@ public interface Navigator {
      * @param target
      *            The destination
      */
-    void setTarget(Location target);
+    void setTarget(Location<World> target);
 }

@@ -24,28 +24,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.citizensnpcs.api.command.exception.CommandException;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.tileentity.CommandBlock;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Locatable;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class CommandContext {
     protected String[] args;
     protected final Set<Character> flags = new HashSet<Character>();
-    private Location location = null;
-    private final CommandSender sender;
+    private Location<World> location = null;
+    private final CommandSource sender;
     protected final Map<String, String> valueFlags = Maps.newHashMap();
 
-    public CommandContext(CommandSender sender, String[] args) {
+    public CommandContext(CommandSource sender, String[] args) {
         this.sender = sender;
         int i = 1;
         for (; i < args.length; i++) {
@@ -208,26 +212,25 @@ public class CommandContext {
         return slice;
     }
 
-    public Location getSenderLocation() throws CommandException {
+    public Location<World> getSenderLocation() throws CommandException {
         if (location != null || sender == null)
             return location;
         if (sender instanceof Player)
             location = ((Player) sender).getLocation();
-        else if (sender instanceof BlockCommandSender)
-            location = ((BlockCommandSender) sender).getBlock().getLocation();
+        else if (sender instanceof CommandBlockSource)
+            location = ((CommandBlockSource) sender).getLocation();
         if (hasValueFlag("location")) {
-            location = parseLocation(location, getFlag("location"));
+            location = parseLocation(location, getFlag("location")).getLocation();
         }
         return location;
     }
 
-    public Location getSenderTargetBlockLocation() {
+    public Location<World> getSenderTargetBlockLocation() {
         if (sender == null)
             return location;
-        if (sender instanceof Player)
-            location = ((Player) sender).getTargetBlock((java.util.Set<org.bukkit.Material>) null, 50).getLocation();
-        else if (sender instanceof BlockCommandSender)
-            location = ((BlockCommandSender) sender).getBlock().getLocation();
+        if (sender instanceof Locatable) {
+            return ((Locatable) this.sender).getLocation();
+        }
         return location;
     }
 
@@ -265,11 +268,11 @@ public class CommandContext {
         return args[0].equalsIgnoreCase(command);
     }
 
-    public static Location parseLocation(Location currentLocation, String flag) throws CommandException {
+    public static Transform<World> parseLocation(Location<World> currentLocation, String flag) throws CommandException {
         boolean denizen = flag.startsWith("l@");
         String[] parts = Iterables.toArray(LOCATION_SPLITTER.split(flag.replaceFirst("l@", "")), String.class);
         if (parts.length > 0) {
-            String worldName = currentLocation != null ? currentLocation.getWorld().getName() : "";
+            String worldName = currentLocation != null ? currentLocation.getExtent().getName() : "";
             double x = 0, y = 0, z = 0;
             float yaw = 0F, pitch = 0F;
             switch (parts.length) {
@@ -296,15 +299,15 @@ public class CommandContext {
                 default:
                     throw new CommandException(CommandMessages.INVALID_SPAWN_LOCATION);
             }
-            World world = Bukkit.getWorld(worldName);
+            World world = Sponge.getServer().getWorld(worldName).orElse(null);
             if (world == null)
                 throw new CommandException(CommandMessages.INVALID_SPAWN_LOCATION);
-            return new Location(world, x, y, z, yaw, pitch);
+            return new Transform<World>(world, new Vector3d(x, y, z), new Vector3d(pitch, yaw, 0));
         } else {
-            Player search = Bukkit.getPlayerExact(flag);
+            Player search = Sponge.getServer().getPlayer(flag).orElse(null);
             if (search == null)
                 throw new CommandException(CommandMessages.PLAYER_NOT_FOUND_FOR_SPAWN);
-            return search.getLocation();
+            return search.getTransform();
         }
     }
 

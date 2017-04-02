@@ -8,9 +8,8 @@ import java.util.List;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.ai.speech.event.NPCSpeechEvent;
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Living;
 
 /**
  * SpeechContext contains information about a {@link NPCSpeechEvent}, including the {@link Talkable} talker, recipients,
@@ -34,7 +33,7 @@ public class SpeechContext implements Iterable<Talkable> {
         this.message = message;
     }
 
-    public SpeechContext(NPC talker, String message, LivingEntity recipient) {
+    public SpeechContext(NPC talker, String message, Living recipient) {
         this(talker, message);
         if (recipient != null) {
             addRecipient(recipient);
@@ -45,7 +44,7 @@ public class SpeechContext implements Iterable<Talkable> {
         this.message = message;
     }
 
-    public SpeechContext(String message, LivingEntity recipient) {
+    public SpeechContext(String message, Living recipient) {
         this.message = message;
         if (recipient != null)
             addRecipient(recipient);
@@ -68,7 +67,7 @@ public class SpeechContext implements Iterable<Talkable> {
     }
 
     @Deprecated
-    public SpeechContext addRecipient(LivingEntity entity) {
+    public SpeechContext addRecipient(Living entity) {
         return addRecipient((Entity) entity);
     }
 
@@ -150,7 +149,7 @@ public class SpeechContext implements Iterable<Talkable> {
     }
 
     @Deprecated
-    public void setTalker(LivingEntity entity) {
+    public void setTalker(Living entity) {
         setTalker((Entity) entity);
     }
 

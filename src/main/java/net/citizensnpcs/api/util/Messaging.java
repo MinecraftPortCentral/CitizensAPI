@@ -12,16 +12,15 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
+import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.Owner;
+import net.minecraft.util.text.TextFormatting;
 
 public class Messaging {
     private static class DebugFormatter extends Formatter {
@@ -52,17 +51,10 @@ public class Messaging {
         MESSAGE_COLOUR = messageColour;
         HIGHLIGHT_COLOUR = highlightColour;
 
-        if (Bukkit.getLogger() != null) {
-            LOGGER = Bukkit.getLogger();
-            DEBUG_LOGGER = LOGGER;
-        }
         if (debugFile != null) {
-            DEBUG_LOGGER = Logger.getLogger("CitizensDebug");
             try {
                 FileHandler fh = new FileHandler(debugFile.getAbsolutePath(), true);
                 fh.setFormatter(new DebugFormatter());
-                DEBUG_LOGGER.setUseParentHandlers(false);
-                DEBUG_LOGGER.addHandler(fh);
             } catch (SecurityException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -73,16 +65,12 @@ public class Messaging {
 
     public static void debug(Object... msg) {
         if (isDebugging()) {
-            DEBUG_LOGGER.log(Level.INFO, SPACE.join(msg));
+            LOGGER.info(SPACE.join(msg));
         }
     }
 
     public static boolean isDebugging() {
         return DEBUG;
-    }
-
-    private static void log(Level level, Object... msg) {
-        LOGGER.log(level, "[Citizens] " + SPACE.join(msg));
     }
 
     public static void log(Object... msg) {
@@ -97,8 +85,8 @@ public class Messaging {
         String trimmed = message.trim();
         String messageColour = Colorizer.parseColors(MESSAGE_COLOUR);
         if (!trimmed.isEmpty()) {
-            if (trimmed.charAt(0) == ChatColor.COLOR_CHAR) {
-                ChatColor test = ChatColor.getByChar(trimmed.substring(1, 2));
+            if (trimmed.charAt(0) == '\u00A7') {
+                TextFormatting test = TextSerializers.LEGACY_FORMATTING_CODE(trimmed.substring(1, 2));
                 if (test == null) {
                     message = messageColour + message;
                 } else
@@ -111,19 +99,19 @@ public class Messaging {
         return message;
     }
 
-    public static void send(CommandSender sender, Object... msg) {
+    public static void send(CommandSource sender, Object... msg) {
         sendMessageTo(sender, SPACE.join(msg));
     }
 
-    public static void sendError(CommandSender sender, Object... msg) {
-        send(sender, ChatColor.RED.toString() + SPACE.join(msg));
+    public static void sendError(CommandSource sender, Object... msg) {
+        send(sender, TextFormatting.RED.toString() + SPACE.join(msg));
     }
 
-    public static void sendErrorTr(CommandSender sender, String key, Object... msg) {
-        sendMessageTo(sender, ChatColor.RED + Translator.translate(key, msg));
+    public static void sendErrorTr(CommandSource sender, String key, Object... msg) {
+        sendMessageTo(sender, TextFormatting.RED + Translator.translate(key, msg));
     }
 
-    private static void sendMessageTo(CommandSender sender, String rawMessage) {
+    private static void sendMessageTo(CommandSource sender, String rawMessage) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             rawMessage = rawMessage.replace("<player>", player.getName());
@@ -135,11 +123,11 @@ public class Messaging {
         }
     }
 
-    public static void sendTr(CommandSender sender, String key, Object... msg) {
+    public static void sendTr(CommandSource sender, String key, Object... msg) {
         sendMessageTo(sender, Translator.translate(key, msg));
     }
 
-    public static void sendWithNPC(CommandSender sender, Object msg, NPC npc) {
+    public static void sendWithNPC(CommandSource sender, Object msg, NPC npc) {
         String send = msg.toString();
         send = send.replace("<owner>", npc.getTrait(Owner.class).getOwner());
         send = send.replace("<npc>", npc.getName());
@@ -176,9 +164,8 @@ public class Messaging {
 
     private static final Splitter CHAT_NEWLINE_SPLITTER = Splitter.on(CHAT_NEWLINE);
     private static boolean DEBUG = false;
-    private static Logger DEBUG_LOGGER;
-    private static String HIGHLIGHT_COLOUR = ChatColor.YELLOW.toString();
-    private static Logger LOGGER = Logger.getLogger("Citizens");
-    private static String MESSAGE_COLOUR = ChatColor.GREEN.toString();
+    private static String HIGHLIGHT_COLOUR = TextFormatting.YELLOW.toString();
+    private static org.slf4j.Logger LOGGER = CitizensAPI.getPlugin().getLogger();
+    private static String MESSAGE_COLOUR = TextFormatting.GREEN.toString();
     private static final Joiner SPACE = Joiner.on(" ").useForNull("null");
 }

@@ -6,13 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -21,16 +15,22 @@ import net.citizensnpcs.api.astar.Agent;
 import net.citizensnpcs.api.astar.Plan;
 import net.citizensnpcs.api.astar.pathfinder.PathPoint.PathCallback;
 import net.citizensnpcs.api.npc.NPC;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class Path implements Plan {
-    private List<Block> blockList;
+    private List<Location<World>> blockList;
     private int index = 0;
     private final PathEntry[] path;
 
-    public Path(Collection<Vector> vector) {
-        this.path = Iterables.toArray(Iterables.transform(vector, new Function<Vector, PathEntry>() {
+    public Path(Collection<Vector3d> vector) {
+        this.path = Iterables.toArray(Iterables.transform(vector, new Function<Vector3d, PathEntry>() {
             @Override
-            public PathEntry apply(Vector input) {
+            public PathEntry apply(Vector3d input) {
                 return new PathEntry(input, Collections.<PathCallback> emptyList());
             }
         }), PathEntry.class);
@@ -44,37 +44,38 @@ public class Path implements Plan {
         // possibly expose cullability in an API
         List<PathEntry> path = Lists.newArrayList();
         for (VectorNode node : unfiltered) {
-            Vector vector = node.location;
+            Vector3d vector = node.getLocation().getPosition();
             path.add(new PathEntry(vector, node.callbacks));
         }
         return path.toArray(new PathEntry[path.size()]);
     }
 
     public void debug() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Sponge.getServer().getOnlinePlayers()) {
             for (PathEntry entry : path) {
-                player.sendBlockChange(entry.vector.toLocation(player.getWorld()), Material.YELLOW_FLOWER, (byte) 0);
+                final Location<World> location = new Location<World>(player.getWorld(), entry.vector);
+                player.sendBlockChange(location.getBlockPosition(), BlockTypes.YELLOW_FLOWER.getDefaultState());
             }
         }
     }
 
     public void debugEnd() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Sponge.getServer().getOnlinePlayers()) {
             for (PathEntry entry : path) {
-                Block block = entry.vector.toLocation(player.getWorld()).getBlock();
-                player.sendBlockChange(block.getLocation(), block.getType(), block.getData());
+                final Location<World> location = new Location<World>(player.getWorld(), entry.vector);
+                player.sendBlockChange(location.getBlockPosition(), location.getBlock());
             }
         }
     }
 
-    public Vector getCurrentVector() {
+    public Vector3d getCurrentVector() {
         return path[index].vector;
     }
 
-    public Iterable<Vector> getPath() {
-        return Iterables.transform(Arrays.asList(path), new Function<PathEntry, Vector>() {
+    public Iterable<Vector3d> getPath() {
+        return Iterables.transform(Arrays.asList(path), new Function<PathEntry, Vector3d>() {
             @Override
-            public Vector apply(PathEntry input) {
+            public Vector3d apply(PathEntry input) {
                 return input.vector;
             }
         });
@@ -104,38 +105,37 @@ public class Path implements Plan {
 
     private class PathEntry {
         final List<PathCallback> callbacks;
-        final Vector vector;
+        final Vector3d vector;
 
-        private PathEntry(Vector vector, List<PathCallback> callbacks) {
+        private PathEntry(Vector3d vector, List<PathCallback> callbacks) {
             this.vector = vector;
             this.callbacks = callbacks;
         }
 
-        private Block getBlockUsingWorld(World world) {
-            return world.getBlockAt(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ());
+        private Location<World> getBlockUsingWorld(World world) {
+            return new Location<World>(world, this.vector);
         }
 
         public void run(final NPC npc) {
             if (callbacks == null)
                 return;
-            Block block = getBlockUsingWorld(npc.getEntity().getWorld());
+            final Location<World> location = getBlockUsingWorld(npc.getEntity().getWorld());
             for (PathCallback callback : callbacks) {
                 if (blockList == null) {
-                    blockList = Lists.transform(Arrays.asList(path), new Function<PathEntry, Block>() {
+                    blockList = Lists.transform(Arrays.asList(path), new Function<PathEntry, Location<World>>() {
                         @Override
-                        public Block apply(PathEntry input) {
-                            return npc.getEntity().getWorld().getBlockAt(input.vector.getBlockX(),
-                                    input.vector.getBlockY(), input.vector.getBlockZ());
+                        public Location<World> apply(PathEntry input) {
+                            return input.getBlockUsingWorld(npc.getEntity().getWorld());
                         }
                     });
                 }
-                ListIterator<Block> vec = blockList.listIterator();
+                ListIterator<Location<World>> vec = blockList.listIterator();
                 if (index > 0) {
                     while (index != vec.nextIndex()) {
                         vec.next();
                     }
                 }
-                callback.run(npc, block, vec);
+                callback.run(npc, location, vec);
             }
         }
 

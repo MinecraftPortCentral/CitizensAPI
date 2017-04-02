@@ -3,7 +3,7 @@ package net.citizensnpcs.api.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.command.CommandSender;
+import org.spongepowered.api.command.CommandSource;
 
 public class Paginator {
     private String header;
@@ -18,7 +18,7 @@ public class Paginator {
         return this;
     }
 
-    public boolean sendPage(CommandSender sender, int page) {
+    public boolean sendPage(CommandSource sender, int page) {
         int pages = (int) (Math.ceil((double) lines.size() / LINES_PER_PAGE) == 0 ? 1
                 : Math.ceil((double) lines.size() / LINES_PER_PAGE));
         if (page <= 0 || page > pages)

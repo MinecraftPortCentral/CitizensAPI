@@ -7,10 +7,12 @@ import net.citizensnpcs.api.npc.NPCDataStore;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import net.citizensnpcs.api.npc.NPCSelector;
 import net.citizensnpcs.api.trait.TraitFactory;
+import org.spongepowered.api.plugin.PluginContainer;
 
-import org.bukkit.plugin.Plugin;
+public interface CitizensPlugin {
 
-public interface CitizensPlugin extends Plugin {
+    public PluginContainer getPlugin();
+
     /**
      * @param The
      *            data store of the registry
@@ -46,8 +48,6 @@ public interface CitizensPlugin extends Plugin {
      */
     public NPCRegistry getNPCRegistry();
 
-    public ClassLoader getOwningClassLoader();
-
     /**
      * @return The folder for storing scripts
      */
@@ -66,11 +66,6 @@ public interface CitizensPlugin extends Plugin {
      * @return Citizens trait factory
      */
     public TraitFactory getTraitFactory();
-
-    /**
-     * Called when the current Citizens implementation is changed
-     */
-    public void onImplementationChanged();
 
     /**
      * Removes the named NPCRegistry with the given name.

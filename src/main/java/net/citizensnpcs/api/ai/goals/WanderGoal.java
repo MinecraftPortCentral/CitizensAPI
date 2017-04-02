@@ -2,21 +2,19 @@ package net.citizensnpcs.api.ai.goals;
 
 import java.util.Random;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.ai.event.NavigationCompleteEvent;
 import net.citizensnpcs.api.ai.tree.BehaviorGoalAdapter;
 import net.citizensnpcs.api.ai.tree.BehaviorStatus;
 import net.citizensnpcs.api.astar.pathfinder.MinecraftBlockExaminer;
 import net.citizensnpcs.api.npc.NPC;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-public class WanderGoal extends BehaviorGoalAdapter implements Listener {
+public class WanderGoal extends BehaviorGoalAdapter {
     private boolean forceFinish;
     private final NPC npc;
     private final Random random = new Random();
@@ -29,24 +27,24 @@ public class WanderGoal extends BehaviorGoalAdapter implements Listener {
         this.yrange = yrange;
     }
 
-    private Location findRandomPosition() {
-        Location base = npc.getEntity().getLocation();
-        Location found = null;
+    private Location<World> findRandomPosition() {
+        Location<World>base = npc.getEntity().getLocation();
+        Location<World> found = null;
         for (int i = 0; i < 10; i++) {
             int x = base.getBlockX() + random.nextInt(2 * xrange) - xrange;
             int y = base.getBlockY() + random.nextInt(2 * yrange) - yrange;
             int z = base.getBlockZ() + random.nextInt(2 * xrange) - xrange;
-            Block block = base.getWorld().getBlockAt(x, y, z);
-            if (MinecraftBlockExaminer.canStandOn(block)
-                    && MinecraftBlockExaminer.canStandIn(block.getRelative(BlockFace.UP).getType())) {
-                found = block.getLocation().add(0, 1, 0);
+            Location<World> loc = new Location<World>(base.getExtent(), x, y, z);
+            if (MinecraftBlockExaminer.canStandOn(loc)
+                    && MinecraftBlockExaminer.canStandIn(loc.getRelative(Direction.UP).getBlock())) {
+                found = loc.add(0, 1, 0);
                 break;
             }
         }
         return found;
     }
 
-    @EventHandler
+    @Listener
     public void onFinish(NavigationCompleteEvent event) {
         forceFinish = true;
     }
@@ -54,7 +52,6 @@ public class WanderGoal extends BehaviorGoalAdapter implements Listener {
     @Override
     public void reset() {
         forceFinish = false;
-        HandlerList.unregisterAll(this);
     }
 
     @Override
@@ -68,7 +65,7 @@ public class WanderGoal extends BehaviorGoalAdapter implements Listener {
     public boolean shouldExecute() {
         if (!npc.isSpawned() || npc.getNavigator().isNavigating())
             return false;
-        Location dest = findRandomPosition();
+        Location<World> dest = findRandomPosition();
         if (dest == null)
             return false;
         npc.getNavigator().setTarget(dest);

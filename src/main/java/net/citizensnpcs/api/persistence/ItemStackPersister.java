@@ -2,8 +2,7 @@ package net.citizensnpcs.api.persistence;
 
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.ItemStorage;
-
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ItemStackPersister implements Persister<ItemStack> {
     @Override

@@ -1,17 +1,18 @@
 package net.citizensnpcs.api.trait.trait;
 
-import org.bukkit.entity.EntityType;
-
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
 import net.citizensnpcs.api.util.DataKey;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 
 /**
  * Represents an NPC's mob type.
  */
 @TraitName("type")
 public class MobType extends Trait {
-    private EntityType type = EntityType.PLAYER;
+    private EntityType type = EntityTypes.PLAYER;
 
     public MobType() {
         super("type");
@@ -28,14 +29,7 @@ public class MobType extends Trait {
 
     @Override
     public void load(DataKey key) {
-        try {
-            type = EntityType.valueOf(key.getString(""));
-        } catch (IllegalArgumentException ex) {
-            type = EntityType.fromName(key.getString(""));
-        }
-        if (type == null) {
-            type = EntityType.PLAYER;
-        }
+        type = Sponge.getRegistry().getType(EntityType.class, key.getString("")).orElse(EntityTypes.PLAYER);
     }
 
     @Override
@@ -45,7 +39,7 @@ public class MobType extends Trait {
 
     @Override
     public void save(DataKey key) {
-        key.setString("", type.name());
+        key.setString("", type.getId());
     }
 
     /**

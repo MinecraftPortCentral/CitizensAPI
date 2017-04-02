@@ -1,17 +1,15 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.event.Cancellable;
 
 public class CommandSenderCreateNPCEvent extends NPCCreateEvent implements Cancellable {
     private boolean cancelled;
-    private final CommandSender creator;
+    private final CommandSource creator;
     private String reason;
 
-    public CommandSenderCreateNPCEvent(CommandSender sender, NPC npc) {
+    public CommandSenderCreateNPCEvent(CommandSource sender, NPC npc) {
         super(npc);
         creator = sender;
     }
@@ -27,13 +25,8 @@ public class CommandSenderCreateNPCEvent extends NPCCreateEvent implements Cance
     /**
      * @return The {@link CommandSender} creating the NPC.
      */
-    public CommandSender getCreator() {
+    public CommandSource getCreator() {
         return creator;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
 
     @Override
@@ -57,9 +50,4 @@ public class CommandSenderCreateNPCEvent extends NPCCreateEvent implements Cance
         this.reason = reason;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
 }

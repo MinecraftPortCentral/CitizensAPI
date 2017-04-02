@@ -2,25 +2,28 @@ package net.citizensnpcs.api.astar.pathfinder;
 
 import java.util.List;
 
-import org.bukkit.Material;
-import org.bukkit.util.Vector;
-
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 
 public class FlyingBlockExaminer implements NeighbourGeneratorBlockExaminer {
     @Override
-    public float getCost(BlockSource source, PathPoint point) {
-        Vector pos = point.getVector();
-        Material above = source.getMaterialAt(pos.clone().add(UP));
-        Material in = source.getMaterialAt(pos);
-        if (above == Material.WEB || in == Material.WEB) {
+    public float getCost(Location<World> source, PathPoint point) {
+        Vector3d pos = point.getVector();
+        BlockType above = source.getBlockRelative(Direction.UP).getBlockType();
+        BlockType in = source.getBlockType();
+        if (above == BlockTypes.WEB || in == BlockTypes.WEB) {
             return 0.5F;
         }
         return 0F;
     }
 
     @Override
-    public List<PathPoint> getNeighbours(BlockSource source, PathPoint point) {
+    public List<PathPoint> getNeighbours(Location<World> source, PathPoint point) {
         List<PathPoint> neighbours = Lists.newArrayList();
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -35,10 +38,10 @@ public class FlyingBlockExaminer implements NeighbourGeneratorBlockExaminer {
     }
 
     @Override
-    public PassableState isPassable(BlockSource source, PathPoint point) {
-        Vector pos = point.getVector();
-        Material above = source.getMaterialAt(pos.clone().add(UP));
-        Material in = source.getMaterialAt(pos);
+    public PassableState isPassable(Location<World> source, PathPoint point) {
+        Vector3d pos = point.getVector();
+        BlockType above = source.getBlockRelative(Direction.UP).getBlockType();
+        BlockType in = source.getBlockType();
         if (MinecraftBlockExaminer.isLiquid(above, in)) {
             return PassableState.UNPASSABLE;
         }

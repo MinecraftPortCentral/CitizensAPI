@@ -3,6 +3,7 @@ package net.citizensnpcs.api.command;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import net.citizensnpcs.api.CitizensAPI;
@@ -13,10 +14,9 @@ import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.trait.MobType;
 import net.citizensnpcs.api.trait.trait.Owner;
 import net.citizensnpcs.api.util.Messaging;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
-
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 import com.google.common.collect.Sets;
 
 public class RequirementsProcessor implements CommandAnnotationProcessor {
@@ -26,7 +26,7 @@ public class RequirementsProcessor implements CommandAnnotationProcessor {
     }
 
     @Override
-    public void process(CommandSender sender, CommandContext context, Annotation instance, Object[] methodArgs)
+    public void process(CommandSource sender, CommandContext context, Annotation instance, Object[] methodArgs)
             throws CommandException {
         Requirements requirements = (Requirements) instance;
         NPC npc = (methodArgs.length >= 3 && methodArgs[2] instanceof NPC) ? (NPC) methodArgs[2] : null;
@@ -60,8 +60,8 @@ public class RequirementsProcessor implements CommandAnnotationProcessor {
             }
         }
 
-        Set<EntityType> types = Sets.newEnumSet(Arrays.asList(requirements.types()), EntityType.class);
-        if (types.contains(EntityType.UNKNOWN)) {
+        List<EntityType> types = Arrays.asList(requirements.types());
+        if (types.contains(EntityTypes.UNKNOWN)) {
             types = EnumSet.allOf(EntityType.class);
         }
         types.removeAll(Sets.newHashSet(requirements.excludedTypes()));

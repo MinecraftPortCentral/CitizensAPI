@@ -4,43 +4,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
-import org.bukkit.block.Banner;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.Repairable;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
-
 import com.google.common.collect.Lists;
 
 import net.citizensnpcs.api.event.CitizensDeserialiseMetaEvent;
 import net.citizensnpcs.api.event.CitizensSerialiseMetaEvent;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.tileentity.Banner;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.DyeColor;
+import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.item.FireworkEffect;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.util.Color;
 
 public class ItemStorage {
     private static void deserialiseBanner(DataKey root, Banner meta) {
         if (root.keyExists("banner.basecolor")) {
-            meta.setBaseColor(DyeColor.valueOf(root.getString("banner.basecolor")));
+            meta.offer(Keys.DYE_COLOR, Sponge.getRegistry().getType(DyeColor.class, root.getString("banner.basecolor")).get());
         }
         if (root.keyExists("banner.patterns")) {
             for (DataKey sub : root.getRelative("banner.patterns").getIntegerSubKeys()) {
@@ -54,7 +34,7 @@ public class ItemStorage {
     private static Iterable<Color> deserialiseColors(DataKey key) {
         List<Color> colors = Lists.newArrayList();
         for (DataKey sub : key.getIntegerSubKeys()) {
-            colors.add(Color.fromRGB(sub.getInt("rgb")));
+            colors.add(Color.ofRgb(sub.getInt("rgb")));
         }
         return colors;
     }

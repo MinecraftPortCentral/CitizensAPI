@@ -1,6 +1,6 @@
 package net.citizensnpcs.api.ai.speech;
 
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 
 /**
  * Talkable provides an interface for talking to Players, Entities and NPCs.

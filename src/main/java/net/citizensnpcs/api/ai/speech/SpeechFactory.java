@@ -1,7 +1,7 @@
 package net.citizensnpcs.api.ai.speech;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Living;
 
 /**
  * SpeechFactory keeps track of and creates new VocalChord instances, necessary for NPC Speech.
@@ -59,7 +59,7 @@ public interface SpeechFactory {
      */
     public Talkable newTalkableEntity(Entity entity);
 
-    public Talkable newTalkableEntity(LivingEntity entity);
+    public Talkable newTalkableEntity(Living entity);
 
     /**
      * Registers a {@link VocalChord} class with the SpeechController, making it available for use within. Requires a

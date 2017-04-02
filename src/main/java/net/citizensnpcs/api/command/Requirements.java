@@ -4,12 +4,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import net.citizensnpcs.api.trait.Trait;
-
-import org.bukkit.entity.EntityType;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Requirements {
-    EntityType[] excludedTypes() default { EntityType.UNKNOWN };
+    //EntityType[] excludedTypes() default { EntityTypes.UNKNOWN };
 
     boolean livingEntity() default false;
 
@@ -19,5 +19,5 @@ public @interface Requirements {
 
     Class<? extends Trait>[] traits() default {};
 
-    EntityType[] types() default { EntityType.UNKNOWN };
+    //EntityType[] types() default { EntityTypes.UNKNOWN };
 }

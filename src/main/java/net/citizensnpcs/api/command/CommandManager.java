@@ -15,11 +15,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -35,6 +30,10 @@ import net.citizensnpcs.api.command.exception.UnhandledCommandException;
 import net.citizensnpcs.api.command.exception.WrappedCommandException;
 import net.citizensnpcs.api.util.Messaging;
 import net.citizensnpcs.api.util.Paginator;
+import net.minecraft.util.text.TextFormatting;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.ConsoleSource;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class CommandManager {
     private final Map<Class<? extends Annotation>, CommandAnnotationProcessor> annotationProcessors = Maps.newHashMap();
@@ -75,19 +74,19 @@ public class CommandManager {
      * @throws CommandException
      *             Any exceptions caused from execution of the command
      */
-    public void execute(org.bukkit.command.Command command, String[] args, CommandSender sender, Object... methodArgs)
+    public void execute(String command, String[] args, CommandSource sender, Object... methodArgs)
             throws CommandException {
         // must put command into split.
         String[] newArgs = new String[args.length + 1];
         System.arraycopy(args, 0, newArgs, 1, args.length);
-        newArgs[0] = command.getName().toLowerCase();
+        newArgs[0] = command.toLowerCase();
 
         Object[] newMethodArgs = new Object[methodArgs.length + 1];
         System.arraycopy(methodArgs, 0, newMethodArgs, 1, methodArgs.length);
         executeMethod(newArgs, sender, newMethodArgs);
     }
 
-    private void executeHelp(String[] args, CommandSender sender) throws CommandException {
+    private void executeHelp(String[] args, CommandSource sender) throws CommandException {
         if (!sender.hasPermission("citizens." + args[0] + ".help"))
             throw new NoPermissionsException();
         int page = 1;
@@ -101,7 +100,7 @@ public class CommandManager {
     }
 
     // Attempt to execute a command.
-    private void executeMethod(String[] args, CommandSender sender, Object[] methodArgs) throws CommandException {
+    private void executeMethod(String[] args, CommandSource sender, Object[] methodArgs) throws CommandException {
         String cmdName = args[0].toLowerCase();
         String modifier = args.length > 1 ? args[1] : "";
         boolean help = modifier.toLowerCase().equals("help");
@@ -119,7 +118,7 @@ public class CommandManager {
         if (method == null)
             throw new UnhandledCommandException();
 
-        if (!serverCommands.contains(method) && sender instanceof ConsoleCommandSender)
+        if (!serverCommands.contains(method) && sender instanceof ConsoleSource)
             throw new ServerCommandException();
 
         if (!hasPermission(method, sender))
@@ -168,7 +167,7 @@ public class CommandManager {
      * @see #execute(Command, String[], CommandSender, Object...)
      * @return Whether further usage should be printed
      */
-    public boolean executeSafe(org.bukkit.command.Command command, String[] args, CommandSender sender,
+    public boolean executeSafe(String command, String[] args, CommandSource sender,
             Object... methodArgs) {
         try {
             try {
@@ -269,7 +268,7 @@ public class CommandManager {
         return cmds;
     }
 
-    private List<String> getLines(CommandSender sender, String baseCommand) {
+    private List<String> getLines(CommandSource sender, String baseCommand) {
         // Ensures that commands with multiple modifiers are only added once
         Set<CommandInfo> processed = Sets.newHashSet();
         List<String> lines = new ArrayList<String>();
@@ -300,18 +299,18 @@ public class CommandManager {
      *            The modifier to check (may be empty)
      * @return Whether the command is handled
      */
-    public boolean hasCommand(org.bukkit.command.Command cmd, String modifier) {
-        String cmdName = cmd.getName().toLowerCase();
+    public boolean hasCommand(String cmd, String modifier) {
+        String cmdName = cmd.toLowerCase();
         return commands.containsKey(cmdName + " " + modifier.toLowerCase()) || commands.containsKey(cmdName + " *");
     }
 
     // Returns whether a CommandSender has permission.
-    private boolean hasPermission(CommandSender sender, String perm) {
+    private boolean hasPermission(CommandSource sender, String perm) {
         return sender.hasPermission(perm);
     }
 
     // Returns whether a player has access to a command.
-    private boolean hasPermission(Method method, CommandSender sender) {
+    private boolean hasPermission(Method method, CommandSource sender) {
         Command cmd = method.getAnnotation(Command.class);
         if (cmd.permission().isEmpty() || hasPermission(sender, cmd.permission()) || hasPermission(sender, "admin"))
             return true;
@@ -404,12 +403,12 @@ public class CommandManager {
                 registeredAnnotations.putAll(method, annotations);
 
             Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes.length <= 1 || parameterTypes[1] == CommandSender.class)
+            if (parameterTypes.length <= 1 || parameterTypes[1] == CommandSource.class)
                 serverCommands.add(method);
         }
     }
 
-    private void sendHelp(CommandSender sender, String name, int page) throws CommandException {
+    private void sendHelp(CommandSource sender, String name, int page) throws CommandException {
         if (name.equalsIgnoreCase("npc"))
             name = "NPC";
         Paginator paginator = new Paginator()
@@ -420,7 +419,7 @@ public class CommandManager {
             throw new CommandException(CommandMessages.COMMAND_PAGE_MISSING, page);
     }
 
-    private void sendSpecificHelp(CommandSender sender, String rootCommand, String modifier) throws CommandException {
+    private void sendSpecificHelp(CommandSource sender, String rootCommand, String modifier) throws CommandException {
         CommandInfo info = getCommand(rootCommand, modifier);
         if (info == null)
             throw new CommandException(CommandMessages.COMMAND_MISSING, rootCommand + " " + modifier);
@@ -428,7 +427,7 @@ public class CommandManager {
         String help = Messaging.tryTranslate(info.getCommandAnnotation().help());
         if (help.isEmpty())
             return;
-        Messaging.send(sender, ChatColor.AQUA + help);
+        Messaging.send(sender, TextFormatting.AQUA + help);
     }
 
     public void setInjector(Injector injector) {

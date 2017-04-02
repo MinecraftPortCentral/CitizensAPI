@@ -1,7 +1,9 @@
 package net.citizensnpcs.api.ai.goals;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import net.citizensnpcs.api.ai.event.CancelReason;
@@ -9,9 +11,8 @@ import net.citizensnpcs.api.ai.event.NavigatorCallback;
 import net.citizensnpcs.api.ai.tree.BehaviorGoalAdapter;
 import net.citizensnpcs.api.ai.tree.BehaviorStatus;
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
 
 public class TargetNearbyEntityGoal extends BehaviorGoalAdapter {
     private final boolean aggressive;
@@ -20,9 +21,9 @@ public class TargetNearbyEntityGoal extends BehaviorGoalAdapter {
     private final double radius;
     private CancelReason reason;
     private Entity target;
-    private final Set<EntityType> targets;
+    private final List<EntityType> targets;
 
-    private TargetNearbyEntityGoal(NPC npc, Set<EntityType> targets, boolean aggressive, double radius) {
+    private TargetNearbyEntityGoal(NPC npc, List<EntityType> targets, boolean aggressive, double radius) {
         this.npc = npc;
         this.targets = targets;
         this.aggressive = aggressive;
@@ -49,7 +50,7 @@ public class TargetNearbyEntityGoal extends BehaviorGoalAdapter {
     public boolean shouldExecute() {
         if (targets.size() == 0 || !npc.isSpawned())
             return false;
-        Collection<Entity> nearby = npc.getEntity().getNearbyEntities(radius, radius, radius);
+        Collection<Entity> nearby = npc.getEntity().getNearbyEntities(radius);
         this.target = null;
         for (Entity entity : nearby) {
             if (targets.contains(entity.getType())) {
@@ -75,7 +76,7 @@ public class TargetNearbyEntityGoal extends BehaviorGoalAdapter {
         private boolean aggressive;
         private final NPC npc;
         private double radius = 10D;
-        private Set<EntityType> targetTypes = EnumSet.noneOf(EntityType.class);
+        private List<EntityType> targetTypes = new ArrayList<>();
 
         public Builder(NPC npc) {
             this.npc = npc;
@@ -95,7 +96,7 @@ public class TargetNearbyEntityGoal extends BehaviorGoalAdapter {
             return this;
         }
 
-        public Builder targets(Set<EntityType> targetTypes) {
+        public Builder targets(List<EntityType> targetTypes) {
             this.targetTypes = targetTypes;
             return this;
         }

@@ -2,12 +2,6 @@ package net.citizensnpcs.api.npc;
 
 import java.util.UUID;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-
 import net.citizensnpcs.api.ai.GoalController;
 import net.citizensnpcs.api.ai.Navigator;
 import net.citizensnpcs.api.ai.speech.SpeechController;
@@ -18,6 +12,12 @@ import net.citizensnpcs.api.npc.BlockBreaker.BlockBreakerConfiguration;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitFactory;
 import net.citizensnpcs.api.util.DataKey;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.entity.teleport.TeleportCause;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 /**
  * Represents an NPC with optional {@link Trait}s.
@@ -75,7 +75,7 @@ public interface NPC extends Agent, Cloneable {
     /**
      * Faces a given {@link Location} if the NPC is spawned.
      */
-    public void faceLocation(Location location);
+    public void faceLocation(Location<World> location);
 
     public BlockBreaker getBlockBreaker(Block targetBlock, BlockBreakerConfiguration config);
 
@@ -137,7 +137,7 @@ public interface NPC extends Agent, Cloneable {
      *
      * @return The stored location, or <code>null</code> if none was found.
      */
-    public Location getStoredLocation();
+    public Location<World> getStoredLocation();
 
     /**
      * Gets a trait from the given class. If the NPC does not currently have the trait then it will be created and
@@ -264,7 +264,7 @@ public interface NPC extends Agent, Cloneable {
      *            Location to spawn this NPC
      * @return Whether this NPC was able to spawn at the location
      */
-    public boolean spawn(Location location);
+    public boolean spawn(Location<World> location);
 
     /**
      * An alternative to {{@link #getBukkitEntity().getLocation()} that teleports passengers as well.
@@ -274,7 +274,7 @@ public interface NPC extends Agent, Cloneable {
      * @param cause
      *            The cause for teleporting
      */
-    public void teleport(Location location, TeleportCause cause);
+    public void teleport(Location<World> location, Cause cause);
 
     public static final String AMBIENT_SOUND_METADATA = "ambient-sound";
     public static final String COLLIDABLE_METADATA = "collidable";

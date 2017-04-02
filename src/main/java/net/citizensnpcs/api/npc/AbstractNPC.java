@@ -5,15 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.metadata.FixedMetadataValue;
-
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -39,6 +30,10 @@ import net.citizensnpcs.api.util.Colorizer;
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.MemoryDataKey;
 import net.citizensnpcs.api.util.Messaging;
+import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.common.interfaces.entity.IMixinEntity;
 
 public abstract class AbstractNPC implements NPC {
     private final GoalController goalController = new SimpleGoalController();
@@ -47,24 +42,46 @@ public abstract class AbstractNPC implements NPC {
         @Override
         public void remove(String key) {
             super.remove(key);
-            if (getEntity() != null) {
-                getEntity().removeMetadata(key, CitizensAPI.getPlugin());
+            final net.minecraft.entity.Entity mcEntity = (net.minecraft.entity.Entity) getEntity();
+            if (mcEntity != null) {
+                IMixinEntity spongeEntity = (IMixinEntity) mcEntity;
+                spongeEntity.getEntityData().removeTag(key);
             }
         }
 
         @Override
         public void set(String key, Object data) {
             super.set(key, data);
-            if (getEntity() != null) {
-                getEntity().setMetadata(key, new FixedMetadataValue(CitizensAPI.getPlugin(), data));
+            final net.minecraft.entity.Entity mcEntity = (net.minecraft.entity.Entity) getEntity();
+            if (mcEntity != null) {
+                IMixinEntity spongeEntity = (IMixinEntity) mcEntity;
+                if (data instanceof Integer) {
+                    spongeEntity.getEntityData().setInteger(key, (Integer) data);
+                } else if (data instanceof Boolean) {
+                    spongeEntity.getEntityData().setBoolean(key, (Boolean) data);
+                } else if (data instanceof Double) {
+                    spongeEntity.getEntityData().setDouble(key, (Double) data);
+                } else if (data instanceof Location) {
+                    
+                }
             }
         }
 
         @Override
         public void setPersistent(String key, Object data) {
             super.setPersistent(key, data);
-            if (getEntity() != null) {
-                getEntity().setMetadata(key, new FixedMetadataValue(CitizensAPI.getPlugin(), data));
+            final net.minecraft.entity.Entity mcEntity = (net.minecraft.entity.Entity) getEntity();
+            if (mcEntity != null) {
+                IMixinEntity spongeEntity = (IMixinEntity) mcEntity;
+                if (data instanceof Integer) {
+                    spongeEntity.getEntityData().setInteger(key, (Integer) data);
+                } else if (data instanceof Boolean) {
+                    spongeEntity.getEntityData().setBoolean(key, (Boolean) data);
+                } else if (data instanceof Double) {
+                    spongeEntity.getEntityData().setDouble(key, (Double) data);
+                } else if (data instanceof Location) {
+                    
+                }
             }
         }
     };
@@ -104,7 +121,7 @@ public abstract class AbstractNPC implements NPC {
         // currently registered runnable to avoid conflicts
         Trait replaced = traits.get(trait.getClass());
 
-        Bukkit.getPluginManager().registerEvents(trait, CitizensAPI.getPlugin());
+        Sponge.getEventManager().registerListeners(CitizensAPI.getPlugin(), trait);
         traits.put(trait.getClass(), trait);
         if (isSpawned())
             trait.onSpawn();
@@ -115,7 +132,7 @@ public abstract class AbstractNPC implements NPC {
             runnables.add(trait);
         }
 
-        Bukkit.getPluginManager().callEvent(new NPCAddTraitEvent(this, trait));
+        Sponge.getEventManager().post(new NPCAddTraitEvent(this, trait));
     }
 
     @Override
@@ -316,12 +333,11 @@ public abstract class AbstractNPC implements NPC {
     public void removeTrait(Class<? extends Trait> traitClass) {
         Trait trait = traits.remove(traitClass);
         if (trait != null) {
-            Bukkit.getPluginManager().callEvent(new NPCRemoveTraitEvent(this, trait));
+            Sponge.getEventManager().post(new NPCRemoveTraitEvent(this, trait));
             removedTraits.add(trait.getName());
             if (trait.isRunImplemented()) {
                 runnables.remove(trait);
             }
-            HandlerList.unregisterAll(trait);
             trait.onRemove();
         }
     }

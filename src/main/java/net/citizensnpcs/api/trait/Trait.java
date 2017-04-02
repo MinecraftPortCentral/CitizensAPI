@@ -1,7 +1,5 @@
 package net.citizensnpcs.api.trait;
 
-import org.bukkit.event.Listener;
-
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.util.DataKey;
@@ -9,7 +7,7 @@ import net.citizensnpcs.api.util.DataKey;
 /**
  * Represents a Trait that can be loaded and saved.
  */
-public abstract class Trait implements Listener, Runnable {
+public abstract class Trait implements Runnable {
     private final String name;
     protected NPC npc = null;
     private boolean runImplemented = true;

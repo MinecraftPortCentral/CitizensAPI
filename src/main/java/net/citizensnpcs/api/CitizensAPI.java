@@ -2,9 +2,6 @@ package net.citizensnpcs.api;
 
 import java.io.File;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 
 import net.citizensnpcs.api.ai.speech.SpeechFactory;
 import net.citizensnpcs.api.npc.NPC;
@@ -13,6 +10,9 @@ import net.citizensnpcs.api.npc.NPCRegistry;
 import net.citizensnpcs.api.npc.NPCSelector;
 import net.citizensnpcs.api.scripting.ScriptCompiler;
 import net.citizensnpcs.api.trait.TraitFactory;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.plugin.PluginContainer;
 
 /**
  * Contains methods used in order to utilize the Citizens API.
@@ -52,9 +52,9 @@ public final class CitizensAPI {
     /**
      * @return The data folder of the current implementation
      */
-    public static File getDataFolder() {
+    /*public static File getDataFolder() {
         return getImplementation().getDataFolder();
-    }
+    }*/
 
     public static NPCSelector getDefaultNPCSelector() {
         return getImplementation().getDefaultNPCSelector();
@@ -99,8 +99,8 @@ public final class CitizensAPI {
     /**
      * @return The current {@link Plugin} providing an implementation
      */
-    public static Plugin getPlugin() {
-        return getImplementation();
+    public static PluginContainer getPlugin() {
+        return getImplementation().getPlugin();
     }
 
     /**
@@ -154,9 +154,9 @@ public final class CitizensAPI {
      * @param listener
      *            The listener to register events for
      */
-    public static void registerEvents(Listener listener) {
-        if (Bukkit.getServer() != null && getPlugin() != null)
-            Bukkit.getPluginManager().registerEvents(listener, getPlugin());
+    public static void registerEvents(Object listener) {
+        if (Sponge.getServer() != null && getPlugin() != null)
+            Sponge.getEventManager().registerListeners(getPlugin(), listener);
     }
 
     /**

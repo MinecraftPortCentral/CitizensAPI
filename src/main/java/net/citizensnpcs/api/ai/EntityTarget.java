@@ -1,6 +1,6 @@
 package net.citizensnpcs.api.ai;
 
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 
 public interface EntityTarget {
     /**

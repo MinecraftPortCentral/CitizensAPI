@@ -4,9 +4,7 @@ import java.util.Collection;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-
+import org.spongepowered.api.entity.Entity;
 import com.google.common.collect.Lists;
 
 public class RadiusNPCFlock implements NPCFlock {
@@ -33,7 +31,7 @@ public class RadiusNPCFlock implements NPCFlock {
             cacheTicks = 0;
         }
         Collection<NPC> ret = Lists.newArrayList();
-        for (Entity entity : npc.getEntity().getNearbyEntities(radius, radius, radius)) {
+        for (Entity entity : npc.getEntity().getNearbyEntities(radius)) {
             NPC npc2 = CitizensAPI.getNPCRegistry().getNPC(entity);
             if (npc2 != null) {
                 if (!npc2.getNavigator().isNavigating())

@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.bukkit.util.Vector;
-
+import com.flowpowered.math.vector.Vector3d;
 import net.citizensnpcs.api.npc.NPC;
 
 public class Flocker implements Runnable {
@@ -25,7 +24,7 @@ public class Flocker implements Runnable {
         Collection<NPC> nearby = flock.getNearby(npc);
         if (nearby.isEmpty())
             return;
-        Vector base = new Vector(0, 0, 0);
+        Vector3d base = new Vector3d(0, 0, 0);
         for (FlockBehavior behavior : behaviors) {
             base.add(behavior.getVector(npc, nearby));
         }
@@ -37,9 +36,9 @@ public class Flocker implements Runnable {
         this.maxForce = maxForce;
     }
 
-    private static Vector clip(double max, Vector vector) {
+    private static Vector3d clip(double max, Vector3d vector) {
         if (vector.length() > max) {
-            return vector.normalize().multiply(max);
+            return vector.normalize().mul(max);
         }
         return vector;
     }

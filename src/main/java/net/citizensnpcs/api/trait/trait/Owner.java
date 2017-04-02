@@ -2,9 +2,8 @@ package net.citizensnpcs.api.trait.trait;
 
 import java.util.UUID;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
@@ -46,7 +45,7 @@ public class Owner extends Trait {
      *            Sender to check
      * @return Whether the sender is the owner of an NPC
      */
-    public boolean isOwnedBy(CommandSender sender) {
+    public boolean isOwnedBy(CommandSource sender) {
         if (sender instanceof Player) {
             if (owner.equalsIgnoreCase(sender.getName())) {
                 if (uuid == null) {
@@ -93,7 +92,7 @@ public class Owner extends Trait {
         key.setString("uuid", uuid == null ? "" : uuid.toString());
     }
 
-    public void setOwner(CommandSender sender) {
+    public void setOwner(CommandSource sender) {
         this.owner = sender.getName();
         if (sender instanceof Player) {
             this.uuid = ((Player) sender).getUniqueId();

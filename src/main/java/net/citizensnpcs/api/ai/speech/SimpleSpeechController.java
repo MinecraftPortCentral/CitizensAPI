@@ -5,7 +5,7 @@ import net.citizensnpcs.api.ai.speech.event.NPCSpeechEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.Speech;
 
-import org.bukkit.Bukkit;
+import org.spongepowered.api.Sponge;
 
 /**
  * Simple implementation of {@link SpeechController} which allows a NPC to speak with any registered {@link VocalChord}.
@@ -27,7 +27,7 @@ public class SimpleSpeechController implements SpeechController {
     public void speak(SpeechContext context, String vocalChordName) {
         context.setTalker(npc.getEntity());
         NPCSpeechEvent event = new NPCSpeechEvent(context, vocalChordName);
-        Bukkit.getServer().getPluginManager().callEvent(event);
+        Sponge.getEventManager().post(event);
         if (event.isCancelled())
             return;
         CitizensAPI.getSpeechFactory().getVocalChord(event.getVocalChordName()).talk(context);
