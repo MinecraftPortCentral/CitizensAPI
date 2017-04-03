@@ -1,12 +1,8 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.event.Cancellable;
 
 public class EntityTargetNPCEvent extends NPCEvent implements Cancellable {
     private boolean cancelled;
@@ -27,11 +23,6 @@ public class EntityTargetNPCEvent extends NPCEvent implements Cancellable {
         return event.getEntity();
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
     /**
      * Returns the reason for the targeting
      * 
@@ -49,11 +40,5 @@ public class EntityTargetNPCEvent extends NPCEvent implements Cancellable {
     @Override
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 }

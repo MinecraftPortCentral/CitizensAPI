@@ -1,50 +1,29 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 
 public class NPCDamageEvent extends NPCEvent implements Cancellable {
-    private final EntityDamageEvent event;
+    private final DamageSource damageSource;
+    private boolean isCancelled = false;
 
-    public NPCDamageEvent(NPC npc, EntityDamageEvent event) {
+    public NPCDamageEvent(NPC npc, DamageSource damageSource) {
         super(npc);
-        this.event = event;
-    }
-
-    public DamageCause getCause() {
-        return event.getCause();
-    }
-
-    public double getDamage() {
-        return event.getDamage();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
+        this.damageSource = damageSource;
     }
 
     @Override
     public boolean isCancelled() {
-        return event.isCancelled();
+        return this.isCancelled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-        event.setCancelled(cancel);
+        this.isCancelled = cancel;
     }
 
     public void setDamage(int damage) {
         event.setDamage(damage);
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
 }

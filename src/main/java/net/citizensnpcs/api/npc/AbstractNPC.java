@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -11,7 +12,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import net.citizensnpcs.Citizens;
+import net.citizensnpcs.Settings.Setting;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.ai.GoalController;
 import net.citizensnpcs.api.ai.SimpleGoalController;
@@ -30,9 +32,14 @@ import net.citizensnpcs.api.util.Colorizer;
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.MemoryDataKey;
 import net.citizensnpcs.api.util.Messaging;
+import net.citizensnpcs.util.PlayerUpdateTask;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 
 public abstract class AbstractNPC implements NPC {
@@ -160,10 +167,9 @@ public abstract class AbstractNPC implements NPC {
 
     @Override
     public void destroy() {
-        Bukkit.getPluginManager().callEvent(new NPCRemoveEvent(this));
+        Sponge.getEventManager().post(new NPCRemoveEvent(this));
         runnables.clear();
         for (Trait trait : traits.values()) {
-            HandlerList.unregisterAll(trait);
             trait.onRemove();
         }
         traits.clear();
@@ -211,7 +217,7 @@ public abstract class AbstractNPC implements NPC {
 
     @Override
     public String getFullName() {
-        int nameLength = getTrait(MobType.class).getType() == EntityType.PLAYER ? 46 : 64;
+        int nameLength = getTrait(MobType.class).getType() == EntityTypes.PLAYER ? 46 : 64;
         if (name.length() > nameLength) {
             Messaging.severe("ID", id, "created with name length greater than " + nameLength + ", truncating", name,
                     "to", name.substring(0, nameLength));
@@ -282,7 +288,7 @@ public abstract class AbstractNPC implements NPC {
 
     @Override
     public boolean isSpawned() {
-        return getEntity() != null && getEntity().isValid();
+        return getEntity() != null;
     }
 
     @Override
@@ -381,11 +387,11 @@ public abstract class AbstractNPC implements NPC {
         if (!isSpawned())
             return;
         Entity bukkitEntity = getEntity();
-        if (bukkitEntity instanceof LivingEntity) {
-            ((LivingEntity) bukkitEntity).setCustomName(getFullName());
+        if (bukkitEntity instanceof Living) {
+           // ((Living) bukkitEntity).setCustomName(getFullName());
         }
-        if (bukkitEntity.getType() == EntityType.PLAYER) {
-            Location old = bukkitEntity.getLocation();
+        if (bukkitEntity.getType() == EntityTypes.PLAYER) {
+            Location<World> old = bukkitEntity.getLocation();
             despawn(DespawnReason.PENDING_RESPAWN);
             spawn(old);
         }
@@ -396,7 +402,7 @@ public abstract class AbstractNPC implements NPC {
         data().setPersistent(NPC.DEFAULT_PROTECTED_METADATA, isProtected);
     }
 
-    private void teleport(final Entity entity, Location location, int delay) {
+    private void teleport(final Entity entity, Location<World> location, int delay) {
         final Entity passenger = entity.getPassenger();
         entity.eject();
         entity.teleport(location);
@@ -409,19 +415,19 @@ public abstract class AbstractNPC implements NPC {
                 entity.setPassenger(passenger);
             }
         };
-        if (!location.getWorld().equals(entity.getWorld())) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(CitizensAPI.getPlugin(), task, delay);
+        if (!location.getExtent().equals(entity.getWorld())) {
+            Sponge.getGame().getScheduler().createTaskBuilder().delayTicks(delay).execute(task).submit(CitizensAPI.getPlugin());
         } else {
             task.run();
         }
     }
 
     @Override
-    public void teleport(Location location, TeleportCause cause) {
+    public void teleport(Location<World> location, TeleportCause cause) {
         if (!isSpawned())
             return;
         NPCTeleportEvent event = new NPCTeleportEvent(this, location);
-        Bukkit.getPluginManager().callEvent(event);
+        Sponge.getEventManager().post(event);
         if (event.isCancelled())
             return;
         Entity entity = getEntity();
@@ -434,9 +440,6 @@ public abstract class AbstractNPC implements NPC {
 
     protected void unloadEvents() {
         runnables.clear();
-        for (Trait trait : traits.values()) {
-            HandlerList.unregisterAll(trait);
-        }
         traits.clear();
         goalController.clear();
     }

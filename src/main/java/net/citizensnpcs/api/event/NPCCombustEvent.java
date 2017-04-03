@@ -1,30 +1,26 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityCombustEvent;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 
 public class NPCCombustEvent extends NPCEvent implements Cancellable {
     private boolean cancelled;
-    private final EntityCombustEvent event;
+    private final DamageSource damageSource;
 
-    public NPCCombustEvent(EntityCombustEvent event, NPC npc) {
-        super(npc);
-        this.event = event;
+    public NPCCombustEvent(DamageSource damageSource, NPC npc) {
+        super(npc, Cause.of(NamedCause.source(damageSource)));
+        this.damageSource = damageSource;
     }
 
     /**
      * @return the amount of time (in seconds) the combustee should be alight for
      */
     public int getDuration() {
-        return event.getDuration();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
+        // TODO
+        return 0;//event.getDuration();
     }
 
     @Override
@@ -46,12 +42,7 @@ public class NPCCombustEvent extends NPCEvent implements Cancellable {
      *            the time in seconds to be alight for.
      */
     public void setDuration(int duration) {
-        event.setDuration(duration);
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
+        // TODO
+        // event.setDuration(duration);
     }
 }

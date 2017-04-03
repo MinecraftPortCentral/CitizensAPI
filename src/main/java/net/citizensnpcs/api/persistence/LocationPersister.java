@@ -3,22 +3,21 @@ package net.citizensnpcs.api.persistence;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 import net.citizensnpcs.api.util.DataKey;
 
-public class LocationPersister implements Persister<Location> {
+public class LocationPersister implements Persister<Location<World>> {
     @Override
-    public Location create(DataKey root) {
+    public Location<World> create(DataKey root) {
         if (!root.keyExists("world"))
             return null;
-        World world = Bukkit.getWorld(root.getString("world"));
+        World world = Sponge.getServer().getWorld(root.getString("world")).orElse(null);
         double x = root.getDouble("x"), y = root.getDouble("y"), z = root.getDouble("z");
         float yaw = (float) root.getDouble("yaw"), pitch = (float) root.getDouble("pitch");
         return world == null ? new LazilyLoadedLocation(root.getString("world"), x, y, z, yaw, pitch)
-                : new Location(world, x, y, z, yaw, pitch);
+                : new Location<World>(world, x, y, z, yaw, pitch);
     }
 
     private double round(double z) {
@@ -29,9 +28,9 @@ public class LocationPersister implements Persister<Location> {
     }
 
     @Override
-    public void save(Location location, DataKey root) {
-        if (location.getWorld() != null) {
-            root.setString("world", location.getWorld().getName());
+    public void save(Location<World> location, DataKey root) {
+        if (location.getExtent() != null) {
+            root.setString("world", location.getExtent().getName());
         }
         root.setDouble("x", round(location.getX()));
         root.setDouble("y", round(location.getY()));
@@ -40,7 +39,7 @@ public class LocationPersister implements Persister<Location> {
         root.setDouble("pitch", location.getPitch());
     }
 
-    public static class LazilyLoadedLocation extends Location {
+    public static class LazilyLoadedLocation extends Location<World> {
         private final String worldName;
 
         public LazilyLoadedLocation(String world, double x, double y, double z, float yaw, float pitch) {
@@ -51,7 +50,7 @@ public class LocationPersister implements Persister<Location> {
         @Override
         public World getWorld() {
             if (super.getWorld() == null) {
-                super.setWorld(Bukkit.getWorld(worldName));
+                super.setWorld(Sponge.getServer().getWorld(this.worldName).get());
             }
             return super.getWorld();
         }

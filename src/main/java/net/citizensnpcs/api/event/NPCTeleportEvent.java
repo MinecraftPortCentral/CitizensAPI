@@ -1,33 +1,27 @@
 package net.citizensnpcs.api.event;
 
-import org.bukkit.Location;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
-
 import net.citizensnpcs.api.npc.NPC;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 /**
  * Called when an NPC teleports.
  */
 public class NPCTeleportEvent extends NPCEvent implements Cancellable {
     private boolean cancelled;
-    private final Location to;
+    private final Location<World> to;
 
-    public NPCTeleportEvent(NPC npc, Location to) {
+    public NPCTeleportEvent(NPC npc, Location<World> to) {
         super(npc);
         this.to = to;
     }
 
-    public Location getFrom() {
+    public Location<World> getFrom() {
         return npc.getStoredLocation();
     }
 
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public Location getTo() {
+    public Location<World> getTo() {
         return to;
     }
 
@@ -40,10 +34,4 @@ public class NPCTeleportEvent extends NPCEvent implements Cancellable {
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
 }

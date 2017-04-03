@@ -10,7 +10,6 @@ public abstract class CitizensEvent extends AbstractEvent {
     private final Cause cause;
 
     protected CitizensEvent(Cause cause) {
-        super();
         this.cause = cause;
     }
 

@@ -182,13 +182,13 @@ public class ItemStorage {
             res.setItemMeta(meta);
         }
 
-        Bukkit.getPluginManager().callEvent(new CitizensDeserialiseMetaEvent(root, res));
+        Sponge.getEventManager().post(new CitizensDeserialiseMetaEvent(root, res));
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends ItemMeta> T ensureMeta(ItemStack stack) {
         if (!stack.hasItemMeta()) {
-            stack.setItemMeta(Bukkit.getServer().getItemFactory().getItemMeta(stack.getType()));
+            stack.setItemMeta(Sponge.getServer().getItemFactory().getItemMeta(stack.getType()));
         }
         return (T) stack.getItemMeta();
     }

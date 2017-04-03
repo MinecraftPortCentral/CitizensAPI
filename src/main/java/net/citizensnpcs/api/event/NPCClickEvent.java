@@ -1,10 +1,8 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Cancellable;
 
 /**
  * Represents an event where an NPC was clicked by a player.
@@ -28,11 +26,6 @@ public abstract class NPCClickEvent extends NPCEvent implements Cancellable {
     }
 
     @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    @Override
     public boolean isCancelled() {
         return cancelled;
     }
@@ -41,10 +34,4 @@ public abstract class NPCClickEvent extends NPCEvent implements Cancellable {
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
 }

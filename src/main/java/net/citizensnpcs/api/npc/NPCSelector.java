@@ -1,7 +1,7 @@
 package net.citizensnpcs.api.npc;
 
-import org.bukkit.command.CommandSender;
+import org.spongepowered.api.command.CommandSource;
 
 public interface NPCSelector {
-    NPC getSelected(CommandSender sender);
+    NPC getSelected(CommandSource sender);
 }

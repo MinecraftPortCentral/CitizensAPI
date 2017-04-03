@@ -2,36 +2,24 @@ package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.command.CommandSource;
 
 public class NPCTraitCommandAttachEvent extends NPCEvent {
-    private final CommandSender sender;
+    private final CommandSource sender;
     private final Class<? extends Trait> traitClass;
 
-    public NPCTraitCommandAttachEvent(NPC npc, Class<? extends Trait> traitClass, CommandSender sender) {
+    public NPCTraitCommandAttachEvent(NPC npc, Class<? extends Trait> traitClass, CommandSource sender) {
         super(npc);
         this.traitClass = traitClass;
         this.sender = sender;
     }
 
-    public CommandSender getCommandSender() {
+    public CommandSource getCommandSender() {
         return sender;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
     }
 
     public Class<? extends Trait> getTraitClass() {
         return traitClass;
     }
 
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
 }

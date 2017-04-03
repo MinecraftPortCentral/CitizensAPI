@@ -1,31 +1,15 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 
 public class NPCDamageEntityEvent extends NPCDamageEvent {
-    private final Entity damaged;
 
-    public NPCDamageEntityEvent(NPC npc, EntityDamageByEntityEvent event) {
-        super(npc, event);
-        damaged = event.getEntity();
+    public NPCDamageEntityEvent(NPC npc, EntityDamageSource damageSource) {
+        super(npc, damageSource);
     }
 
-    public Entity getDamaged() {
-        return damaged;
+    public EntityDamageSource getDamageSource() {
+        
     }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
 }

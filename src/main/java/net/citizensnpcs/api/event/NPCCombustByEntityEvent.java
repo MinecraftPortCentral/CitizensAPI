@@ -1,17 +1,15 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityCombustByEntityEvent;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 
 public class NPCCombustByEntityEvent extends NPCCombustEvent {
-    private final EntityCombustByEntityEvent event;
+    private final EntityDamageSource entityDamageSource;
 
-    public NPCCombustByEntityEvent(EntityCombustByEntityEvent event, NPC npc) {
-        super(event, npc);
-        this.event = event;
+    public NPCCombustByEntityEvent(EntityDamageSource damageSource, NPC npc) {
+        super(damageSource, npc);
+        this.entityDamageSource = damageSource;
     }
 
     /**
@@ -20,17 +18,6 @@ public class NPCCombustByEntityEvent extends NPCCombustEvent {
      * @return the Entity that set the combustee alight.
      */
     public Entity getCombuster() {
-        return event.getCombuster();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
+        return this.entityDamageSource.getSource();
     }
 }

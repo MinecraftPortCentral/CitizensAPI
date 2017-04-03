@@ -5,21 +5,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.minecart.StorageMinecart;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.ItemStorage;
+import org.spongepowered.api.entity.living.animal.Horse;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
  * Represents an NPC's inventory.
@@ -27,7 +22,7 @@ import net.citizensnpcs.api.util.ItemStorage;
 @TraitName("inventory")
 public class Inventory extends Trait {
     private ItemStack[] contents;
-    private org.bukkit.inventory.Inventory view;
+    private org.spongepowered.api.item.inventory.Inventory view;
     private final Set<InventoryView> views = new HashSet<InventoryView>();
 
     public Inventory() {
@@ -50,8 +45,8 @@ public class Inventory extends Trait {
         return contents;
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void inventoryCloseEvent(InventoryCloseEvent event) {
+    @Listener
+    public void inventoryCloseEvent(InteractInventoryEvent.Close event) {
         if (!views.contains(event.getView()))
             return;
         ItemStack[] contents = event.getInventory().getContents();
@@ -136,7 +131,7 @@ public class Inventory extends Trait {
      */
     public void setContents(ItemStack[] contents) {
         this.contents = Arrays.copyOf(contents, 72);
-        org.bukkit.inventory.Inventory dest = null;
+        org.spongepowered.api.item.inventory.Inventory dest = null;
         int maxCopySize = -1;
         if (npc.getEntity() instanceof Player) {
             dest = ((Player) npc.getEntity()).getInventory();

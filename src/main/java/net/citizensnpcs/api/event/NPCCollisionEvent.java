@@ -1,9 +1,7 @@
 package net.citizensnpcs.api.event;
 
 import net.citizensnpcs.api.npc.NPC;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.entity.Entity;
 
 public class NPCCollisionEvent extends NPCEvent {
     private final Entity entity;
@@ -20,16 +18,5 @@ public class NPCCollisionEvent extends NPCEvent {
      */
     public Entity getCollidedWith() {
         return entity;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    private static final HandlerList handlers = new HandlerList();
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 }
