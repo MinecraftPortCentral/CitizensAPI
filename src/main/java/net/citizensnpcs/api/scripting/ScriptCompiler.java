@@ -49,7 +49,7 @@ public class ScriptCompiler {
 
         @Override
         public Thread newThread(Runnable r) {
-            Thread created = new Thread(r, "Citizens Script Compiler #" + n++);
+            Thread created = new Thread(r, "Citizens Script Compiler #" + this.n++);
             return created;
         }
     });
@@ -69,25 +69,25 @@ public class ScriptCompiler {
     private final List<ContextProvider> globalContextProviders = Lists.newArrayList();
 
     public ScriptCompiler(ClassLoader overrideClassLoader) {
-        engineManager = new ScriptEngineManager(overrideClassLoader);
-        classLoader = new WeakReference<ClassLoader>(overrideClassLoader);
+        this.engineManager = new ScriptEngineManager(overrideClassLoader);
+        this.classLoader = new WeakReference<ClassLoader>(overrideClassLoader);
     }
 
     public boolean canCompile(File file) {
-        return fileEngineConverter.apply(file) != null;
+        return this.fileEngineConverter.apply(file) != null;
     }
 
     /**
      * Create a builder to compile the given files.
      *
-     * @param files
+     * @param file
      *            The files to compile
      * @return The {@link CompileTaskBuilder}
      */
     public CompileTaskBuilder compile(File file) {
         if (file == null)
             throw new IllegalArgumentException("file should not be null");
-        ScriptSource source = fileEngineConverter.apply(file);
+        ScriptSource source = this.fileEngineConverter.apply(file);
         if (source == null)
             throw new IllegalArgumentException("could not recognise file");
         return new CompileTaskBuilder(source);
@@ -111,27 +111,27 @@ public class ScriptCompiler {
     }
 
     public void interrupt() {
-        executor.shutdownNow();
+        this.executor.shutdownNow();
     }
 
     private ScriptEngine loadEngine(String extension) {
-        ScriptEngine engine = engines.get(extension);
+        ScriptEngine engine = this.engines.get(extension);
         if (engine != null)
             return engine;
         ScriptEngine search = null;
         if (extension.equals("js") || extension.equals("javascript")) {
-            search = engineManager.getEngineByName("nashorn");
+            search = this.engineManager.getEngineByName("nashorn");
         }
         if (search == null) {
-            search = engineManager.getEngineByExtension(extension);
+            search = this.engineManager.getEngineByExtension(extension);
         }
         if (search != null && (!(search instanceof Compilable) || !(search instanceof Invocable))) {
             search = null;
         } else if (search != null) {
             search = tryUpdateClassLoader(search);
         }
-        engines.put(extension, search);
-        ClassLoader cl = classLoader.get();
+        this.engines.put(extension, search);
+        ClassLoader cl = this.classLoader.get();
         if (cl != null) {
             updateSunClassLoader(cl);
         }
@@ -145,8 +145,8 @@ public class ScriptCompiler {
      *            The global provider
      */
     public void registerGlobalContextProvider(ContextProvider provider) {
-        if (!globalContextProviders.contains(provider)) {
-            globalContextProviders.add(provider);
+        if (!this.globalContextProviders.contains(provider)) {
+            this.globalContextProviders.add(provider);
         }
     }
 
@@ -169,10 +169,10 @@ public class ScriptCompiler {
         ScriptEngineFactory factory = search.getFactory();
         try {
             Method method = factory.getClass().getMethod("getScriptEngine", ClassLoader.class);
-            ClassLoader loader = classLoader.get();
+            ClassLoader loader = this.classLoader.get();
             if (loader == null)
                 return search;
-            return (ScriptEngine) method.invoke(factory, classLoader.get());
+            return (ScriptEngine) method.invoke(factory, this.classLoader.get());
         } catch (Exception e) {
             return search;
         }
@@ -200,7 +200,7 @@ public class ScriptCompiler {
 
         public CompileTask(CompileTaskBuilder builder) {
             List<ContextProvider> copy = Lists.newArrayList(builder.contextProviders);
-            copy.addAll(globalContextProviders);
+            copy.addAll(ScriptCompiler.this.globalContextProviders);
             this.contextProviders = copy.toArray(new ContextProvider[copy.size()]);
             this.callbacks = builder.callbacks.toArray(new CompileCallback[builder.callbacks.size()]);
             this.engine = builder.engine;
@@ -209,18 +209,18 @@ public class ScriptCompiler {
 
         @Override
         public ScriptFactory call() {
-            if (cache && CACHE.containsKey(engine.getIdentifier()))
-                return CACHE.get(engine.getIdentifier());
-            Compilable compiler = (Compilable) engine.engine;
+            if (this.cache && CACHE.containsKey(this.engine.getIdentifier()))
+                return CACHE.get(this.engine.getIdentifier());
+            Compilable compiler = (Compilable) this.engine.engine;
             Reader reader = null;
             try {
-                CompiledScript src = compiler.compile(reader = engine.getReader());
-                ScriptFactory compiled = new SimpleScriptFactory(src, contextProviders);
-                if (cache) {
-                    CACHE.put(engine.getIdentifier(), compiled);
+                CompiledScript src = compiler.compile(reader = this.engine.getReader());
+                ScriptFactory compiled = new SimpleScriptFactory(src, this.contextProviders);
+                if (this.cache) {
+                    CACHE.put(this.engine.getIdentifier(), compiled);
                 }
-                for (CompileCallback callback : callbacks) {
-                    callback.onScriptCompiled(engine.getIdentifier(), compiled);
+                for (CompileCallback callback : this.callbacks) {
+                    callback.onScriptCompiled(this.engine.getIdentifier(), compiled);
                 }
                 return compiled;
             } catch (IOException e) {
@@ -251,7 +251,7 @@ public class ScriptCompiler {
 
         public Future<ScriptFactory> beginWithFuture() {
             CompileTask task = new CompileTask(this);
-            return executor.submit(task);
+            return ScriptCompiler.this.executor.submit(task);
         }
 
         public CompileTaskBuilder cache(boolean cache) {
@@ -260,12 +260,12 @@ public class ScriptCompiler {
         }
 
         public CompileTaskBuilder withCallback(CompileCallback callback) {
-            callbacks.add(callback);
+            this.callbacks.add(callback);
             return this;
         }
 
         public CompileTaskBuilder withContextProvider(ContextProvider provider) {
-            contextProviders.add(provider);
+            this.contextProviders.add(provider);
             return this;
         }
     }
@@ -291,11 +291,11 @@ public class ScriptCompiler {
         }
 
         public String getIdentifier() {
-            return identifier;
+            return this.identifier;
         }
 
         public Reader getReader() throws FileNotFoundException {
-            return file == null ? new StringReader(src) : new FileReader(file);
+            return this.file == null ? new StringReader(this.src) : new FileReader(this.file);
         }
     }
 

@@ -35,7 +35,7 @@ public class PersistenceLoader {
         private PersistField(Field field, Object instance) {
             this.field = field;
             this.persistAnnotation = field.getAnnotation(Persist.class);
-            this.key = persistAnnotation.value().equals("UNINITIALISED") ? field.getName() : persistAnnotation.value();
+            this.key = this.persistAnnotation.value().equals("UNINITIALISED") ? field.getName() : this.persistAnnotation.value();
             Class<?> fallback = field.getType();
             if (field.getGenericType() instanceof ParameterizedType) {
                 fallback = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
@@ -46,33 +46,33 @@ public class PersistenceLoader {
 
         @SuppressWarnings("unchecked")
         public <T> T get() {
-            if (value == null)
+            if (this.value == null)
                 try {
-                    value = field.get(instance);
+                    this.value = this.field.get(this.instance);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    value = NULL;
+                    this.value = NULL;
                 }
-            if (value == NULL)
+            if (this.value == NULL)
                 return null;
-            return (T) value;
+            return (T) this.value;
         }
 
         public Class<?> getCollectionType() {
-            return persistAnnotation.collectionType();
+            return this.persistAnnotation.collectionType();
         }
 
         public Class<?> getType() {
-            return field.getType();
+            return this.field.getType();
         }
 
         public boolean isRequired() {
-            return persistAnnotation.required();
+            return this.persistAnnotation.required();
         }
 
         public void set(Object value) {
             try {
-                field.set(instance, value);
+                this.field.set(this.instance, value);
             } catch (Exception e) {
                 e.printStackTrace();
             }

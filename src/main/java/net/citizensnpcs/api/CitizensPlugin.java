@@ -14,14 +14,14 @@ public interface CitizensPlugin {
     public PluginContainer getPlugin();
 
     /**
-     * @param The
+     * @param store Data store
      *            data store of the registry
      * @return A new anonymous NPCRegistry that is not accessible via {@link #getNamedNPCRegistry(String)}
      */
     public NPCRegistry createAnonymousNPCRegistry(NPCDataStore store);
 
     /**
-     * @param pluginName
+     * @param name
      *            The plugin name
      * @param store
      *            The data store for the registry
@@ -33,9 +33,9 @@ public interface CitizensPlugin {
 
     /**
      *
-     * @param pluginName
+     * @param name
      *            The plugin name
-     * @return A NPCRegistry previously created via {@link #createNamedNPCRegistry(String)}, or null if not found
+     * @return A NPCRegistry previously created via {@link #createNamedNPCRegistry(String, NPCDataStore)}, or null if not found
      */
     public NPCRegistry getNamedNPCRegistry(String name);
 

@@ -27,7 +27,7 @@ public class Inventory extends Trait {
 
     public Inventory() {
         super("inventory");
-        contents = new ItemStack[72];
+        this.contents = new ItemStack[72];
     }
 
     /**
@@ -36,55 +36,55 @@ public class Inventory extends Trait {
      * @return ItemStack array of an NPC's inventory contents
      */
     public ItemStack[] getContents() {
-        if (view != null) {
-            for (int i = 0; i < view.getSize(); i++) {
-                view.setItem(i, contents[i]);
+        if (this.view != null) {
+            for (int i = 0; i < this.view.getSize(); i++) {
+                this.view.setItem(i, this.contents[i]);
             }
-            return view.getContents();
+            return this.view.getContents();
         }
-        return contents;
+        return this.contents;
     }
 
     @Listener
     public void inventoryCloseEvent(InteractInventoryEvent.Close event) {
-        if (!views.contains(event.getView()))
+        if (!this.views.contains(event.getView()))
             return;
         ItemStack[] contents = event.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
             this.contents[i] = contents[i];
         }
-        if (npc.getEntity() instanceof InventoryHolder) {
-            int maxSize = ((InventoryHolder) npc.getEntity()).getInventory().getStorageContents().length;
-            ((InventoryHolder) npc.getEntity()).getInventory().setStorageContents(Arrays.copyOf(contents, maxSize));
+        if (this.npc.getEntity() instanceof InventoryHolder) {
+            int maxSize = ((InventoryHolder) this.npc.getEntity()).getInventory().getStorageContents().length;
+            ((InventoryHolder) this.npc.getEntity()).getInventory().setStorageContents(Arrays.copyOf(contents, maxSize));
         }
-        views.remove(event.getView());
+        this.views.remove(event.getView());
     }
 
     @Override
     public void load(DataKey key) throws NPCLoadException {
-        contents = parseContents(key);
+        this.contents = parseContents(key);
     }
 
     @Override
     public void onSpawn() {
-        setContents(contents);
-        int size = npc.getEntity() instanceof Player ? 36
-                : npc.getEntity() instanceof InventoryHolder
-                        ? ((InventoryHolder) npc.getEntity()).getInventory().getSize() : contents.length;
+        setContents(this.contents);
+        int size = this.npc.getEntity() instanceof Player ? 36
+                                                          : this.npc.getEntity() instanceof InventoryHolder
+                  ? ((InventoryHolder) this.npc.getEntity()).getInventory().getSize() : this.contents.length;
         int rem = size % 9;
         if (rem != 0) {
             size += 9 - rem; // round up to nearest multiple of 9
         }
-        view = Bukkit.createInventory(
-                npc.getEntity() instanceof InventoryHolder ? ((InventoryHolder) npc.getEntity()) : null, size,
-                npc.getName() + "'s Inventory");
+        this.view = Bukkit.createInventory(
+            this.npc.getEntity() instanceof InventoryHolder ? ((InventoryHolder) this.npc.getEntity()) : null, size,
+            this.npc.getName() + "'s Inventory");
     }
 
     public void openInventory(Player sender) {
-        for (int i = 0; i < view.getSize(); i++) {
-            view.setItem(i, contents[i]);
+        for (int i = 0; i < this.view.getSize(); i++) {
+            this.view.setItem(i, this.contents[i]);
         }
-        views.add(sender.openInventory(view));
+        this.views.add(sender.openInventory(this.view));
     }
 
     private ItemStack[] parseContents(DataKey key) throws NPCLoadException {
@@ -97,10 +97,10 @@ public class Inventory extends Trait {
 
     @Override
     public void run() {
-        if (npc.getEntity() instanceof Player) {
-            contents = ((Player) npc.getEntity()).getInventory().getContents();
+        if (this.npc.getEntity() instanceof Player) {
+            this.contents = ((Player) this.npc.getEntity()).getInventory().getContents();
         }
-        Iterator<InventoryView> itr = views.iterator();
+        Iterator<InventoryView> itr = this.views.iterator();
         while (itr.hasNext()) {
             InventoryView iview = itr.next();
             if (!iview.getPlayer().isValid()) {
@@ -113,7 +113,7 @@ public class Inventory extends Trait {
     @Override
     public void save(DataKey key) {
         int slot = 0;
-        for (ItemStack item : contents) {
+        for (ItemStack item : this.contents) {
             // Clear previous items to avoid conflicts
             key.removeKey(String.valueOf(slot));
             if (item != null) {
@@ -133,13 +133,13 @@ public class Inventory extends Trait {
         this.contents = Arrays.copyOf(contents, 72);
         org.spongepowered.api.item.inventory.Inventory dest = null;
         int maxCopySize = -1;
-        if (npc.getEntity() instanceof Player) {
-            dest = ((Player) npc.getEntity()).getInventory();
+        if (this.npc.getEntity() instanceof Player) {
+            dest = ((Player) this.npc.getEntity()).getInventory();
             maxCopySize = 36;
-        } else if (npc.getEntity() instanceof StorageMinecart) {
-            dest = ((StorageMinecart) npc.getEntity()).getInventory();
-        } else if (npc.getEntity() instanceof Horse) {
-            dest = ((Horse) npc.getEntity()).getInventory();
+        } else if (this.npc.getEntity() instanceof StorageMinecart) {
+            dest = ((StorageMinecart) this.npc.getEntity()).getInventory();
+        } else if (this.npc.getEntity() instanceof Horse) {
+            dest = ((Horse) this.npc.getEntity()).getInventory();
         }
 
         if (dest == null)
@@ -155,6 +155,6 @@ public class Inventory extends Trait {
 
     @Override
     public String toString() {
-        return "Inventory{" + Arrays.toString(contents) + "}";
+        return "Inventory{" + Arrays.toString(this.contents) + "}";
     }
 }

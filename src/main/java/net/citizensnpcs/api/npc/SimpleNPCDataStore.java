@@ -2,27 +2,29 @@ package net.citizensnpcs.api.npc;
 
 import java.util.UUID;
 
-import org.bukkit.entity.EntityType;
 
 import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.api.util.Messaging;
 import net.citizensnpcs.api.util.Storage;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 
 public class SimpleNPCDataStore implements NPCDataStore {
     private final Storage root;
 
     protected SimpleNPCDataStore(Storage saves) {
-        root = saves;
+        this.root = saves;
     }
 
     @Override
     public void clearData(NPC npc) {
-        root.getKey("npc").removeKey(Integer.toString(npc.getId()));
+        this.root.getKey("npc").removeKey(Integer.toString(npc.getId()));
     }
 
     @Override
     public int createUniqueNPCId(NPCRegistry registry) {
-        DataKey key = root.getKey("");
+        DataKey key = this.root.getKey("");
         int newId = key.getInt("last-created-npc-id", -1);
         if (newId == -1 || registry.getById(newId + 1) != null) {
             int maxId = Integer.MIN_VALUE;
@@ -41,7 +43,7 @@ public class SimpleNPCDataStore implements NPCDataStore {
 
     @Override
     public void loadInto(NPCRegistry registry) {
-        for (DataKey key : root.getKey("npc").getIntegerSubKeys()) {
+        for (DataKey key : this.root.getKey("npc").getIntegerSubKeys()) {
             int id = Integer.parseInt(key.name());
             if (!key.keyExists("name")) {
                 Messaging.logTr(LOAD_NAME_NOT_FOUND, id);
@@ -65,19 +67,19 @@ public class SimpleNPCDataStore implements NPCDataStore {
         new Thread() {
             @Override
             public void run() {
-                root.save();
+                SimpleNPCDataStore.this.root.save();
             }
         }.start();
     }
 
     @Override
     public void saveToDiskImmediate() {
-        root.save();
+        this.root.save();
     }
 
     @Override
     public void store(NPC npc) {
-        npc.save(root.getKey("npc." + npc.getId()));
+        npc.save(this.root.getKey("npc." + npc.getId()));
     }
 
     @Override
@@ -92,30 +94,7 @@ public class SimpleNPCDataStore implements NPCDataStore {
     }
 
     private static EntityType matchEntityType(String toMatch) {
-        EntityType type;
-        try {
-            type = EntityType.valueOf(toMatch);
-        } catch (IllegalArgumentException ex) {
-            type = EntityType.fromName(toMatch);
-        }
-        if (type != null)
-            return type;
-        return matchEnum(EntityType.values(), toMatch);
-    }
-
-    private static <T extends Enum<?>> T matchEnum(T[] values, String toMatch) {
-        T type = null;
-        for (T check : values) {
-            String name = check.name();
-            if (name.matches(toMatch) || name.equalsIgnoreCase(toMatch)
-                    || name.replace("_", "").equalsIgnoreCase(toMatch)
-                    || name.replace('_', '-').equalsIgnoreCase(toMatch)
-                    || name.replace('_', ' ').equalsIgnoreCase(toMatch) || name.startsWith(toMatch)) {
-                type = check;
-                break;
-            }
-        }
-        return type;
+        return Sponge.getRegistry().getType(EntityType.class, toMatch).orElse(EntityTypes.HUMAN);
     }
 
     private static final String LOAD_NAME_NOT_FOUND = "citizens.notifications.npc-name-not-found";

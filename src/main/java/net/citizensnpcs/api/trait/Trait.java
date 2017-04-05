@@ -22,19 +22,19 @@ public abstract class Trait implements Runnable {
      * @return Name of this trait
      */
     public final String getName() {
-        return name;
+        return this.name;
     }
 
     /**
      * @return The {@link NPC} this trait is attached to. May be null.
      */
     public final NPC getNPC() {
-        return npc;
+        return this.npc;
     }
 
     public boolean isRunImplemented() {
         run();
-        return runImplemented;
+        return this.runImplemented;
     }
 
     public void linkToNPC(NPC npc) {
@@ -88,7 +88,7 @@ public abstract class Trait implements Runnable {
 
     @Override
     public void run() {
-        runImplemented = false;
+        this.runImplemented = false;
     }
 
     /**

@@ -28,7 +28,7 @@ public final class CitizensAPI {
      * @since 2.0.8
      * @param store
      *            The {@link NPCDataStore} to use with the registry
-     * @return A new anonymous NPCRegistry that is not accessible via {@link #getPluginNPCRegistry(String)}
+     * @return A new anonymous NPCRegistry
      */
     public static NPCRegistry createAnonymousNPCRegistry(NPCDataStore store) {
         return getImplementation().createAnonymousNPCRegistry(store);
@@ -43,7 +43,7 @@ public final class CitizensAPI {
      * @param store
      *            The {@link NPCDataStore} to use with the registry
      * @since 2.0.8
-     * @return A new NPCRegistry, that can also be retrieved via {@link #getPluginNPCRegistry(String)}
+     * @return A new NPCRegistry, that can also be retrieved via {@link CitizensPlugin#getPluginNPCRegistry(String, NPCDataStore)}
      */
     public static NPCRegistry createNamedNPCRegistry(String name, NPCDataStore store) {
         return getImplementation().createNamedNPCRegistry(name, store);
@@ -97,7 +97,7 @@ public final class CitizensAPI {
     }
 
     /**
-     * @return The current {@link Plugin} providing an implementation
+     * @return The current {@link PluginContainer} providing an implementation
      */
     public static PluginContainer getPlugin() {
         return getImplementation().getPlugin();
